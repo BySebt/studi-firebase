@@ -1,7 +1,7 @@
 {
-  "name": "windmill-dashboard-react",
-  "version": "0.4.0",
-  "description": "A multi theme, completely accessible, with components and pages examples, (almost) ready for production dashboard.",
+  "name": "studyi",
+  "version": "0.1.1",
+  "description": "Studying tool backed by the forgetting curve.",
   "private": true,
   "scripts": {
     "tailwind:dev": "tailwindcss build src/assets/css/tailwind.css -o src/assets/css/tailwind.output.css",
@@ -46,13 +46,6 @@
     "react-axe": "3.5.2",
     "tailwindcss": "1.9.6"
   },
-  "keywords": [
-    "windmill",
-    "dashboard",
-    "admin",
-    "tailwind",
-    "react"
-  ],
   "eslintConfig": {
     "extends": "react-app"
   },
