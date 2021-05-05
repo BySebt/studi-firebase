@@ -28,7 +28,7 @@ export default () => {
                     <LogoContainer>
                         <LogoText>Studyi</LogoText>
                     </LogoContainer>
-                    <CopywrightNotice>&copy; 2021 Studyi. All Rights Reserved.</CopywrightNotice>
+                    <CopywrightNotice>&copy; 2021 Studyi. Made By Edwin. All Rights Reserved.</CopywrightNotice>
                 </ThreeColRow>
             </Content>
             <DecoratorBlobContainer>
