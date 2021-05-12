@@ -6,16 +6,17 @@ import ChartLegend from '../components/Chart/ChartLegend'
 import PageTitle from '../components/Typography/PageTitle'
 import { TaskLeftIcon, CompletedIcon, DueIcon, TotalIcon, StudyiIcon } from '../icons'
 import RoundIcon from '../components/RoundIcon'
-import response from '../utils/demo/tableData'
 
 import {
-  doughnutOptions,
   lineOptions,
-  doughnutLegends,
   lineLegends,
 } from '../utils/demo/chartsData'
 
 function Dashboard() {
+
+  //Todo - Get real data
+  const response = " ";
+
   const [page, setPage] = useState(1)
   const [data, setData] = useState([])
 

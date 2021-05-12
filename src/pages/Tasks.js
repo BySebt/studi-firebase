@@ -16,7 +16,6 @@ import {
 } from '@windmill/react-ui'
 import { EditIcon, TrashIcon } from '../icons'
 
-import response from '../utils/demo/tableData'
 import testdata from '../utils/demo/studyData'
 // make a copy of the data, for the second table
 

@@ -16,7 +16,6 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
-    "@emotion": "11.3.0",
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.3.0",
     "@owaiswiz/use-in-view": "^1.0.16",

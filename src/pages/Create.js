@@ -1,10 +1,8 @@
 import React from 'react'
 
 import PageTitle from '../components/Typography/PageTitle'
-import SectionTitle from '../components/Typography/SectionTitle'
-import {Input, HelperText, Label, Select, Textarea, Button} from '@windmill/react-ui'
+import {Input, Label, Textarea, Button} from '@windmill/react-ui'
 
-import { MailIcon } from '../icons'
 import {Link} from "react-router-dom";
 
 function Create() {

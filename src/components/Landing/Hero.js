@@ -6,7 +6,6 @@ import Header from "../Landing/LandingHeader";
 
 import { ReactComponent as SvgDecoratorBlob1 } from "../../icons/decorator-blob.svg";
 import DesignIllustration from "../../icons/design-illustration.svg";
-import {PrimaryButton} from "../misc/Buttons";
 
 const Container = tw.div`relative`;
 const TwoColumn = tw.div`flex flex-col lg:flex-row lg:items-center max-w-screen-xl mx-auto py-20 md:py-24`;
