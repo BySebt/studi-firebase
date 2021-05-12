@@ -1,7 +1,7 @@
 import React from 'react'
 import routes from '../../routes/sidebar'
 import { NavLink, Route } from 'react-router-dom'
-import * as Icons from '../../icons'
+import * as Icons from '../../assets/icons'
 import SidebarSubmenu from './SidebarSubmenu'
 import { Button } from '@windmill/react-ui'
 
@@ -31,9 +31,9 @@ function SidebarContent() {
               >
                 <Route path={route.path} exact={route.exact}>
                   <span
-                    className="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg"
-                    aria-hidden="true"
-                  ></span>
+    className="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg"
+    aria-hidden="true"
+    />
                 </Route>
                 <Icon className="w-5 h-5" aria-hidden="true" icon={route.icon} />
                 <span className="ml-4">{route.name}</span>

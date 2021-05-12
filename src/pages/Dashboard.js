@@ -4,13 +4,13 @@ import ChartCard from '../components/Chart/ChartCard'
 import { Line } from 'react-chartjs-2'
 import ChartLegend from '../components/Chart/ChartLegend'
 import PageTitle from '../components/Typography/PageTitle'
-import { TaskLeftIcon, CompletedIcon, DueIcon, TotalIcon, StudyiIcon } from '../icons'
-import RoundIcon from '../components/RoundIcon'
+import { TaskLeftIcon, CompletedIcon, DueIcon, TotalIcon, StudyiIcon } from '../assets/icons'
+import RoundIcon from '../components/Misc/RoundIcon'
 
 import {
   lineOptions,
   lineLegends,
-} from '../utils/demo/chartsData'
+} from '../utils/demodata/chartsData'
 
 function Dashboard() {
 

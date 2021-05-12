@@ -1,14 +1,14 @@
 import React from "react";
 import tw from "twin.macro";
-import AnimationRevealPage from "../helpers/AnimationRevealPage.js";
+import AnimationRevealPage from "../utils/helpers/AnimationRevealPage.js";
 import Hero from "../components/Landing/Hero";
 import Features from "../components/Landing/Features";
 import MainFeature from "../components/Landing/MainFeature";
 import FeatureWithSteps from "../components/Landing/FeatureWithSteps";
 import FAQ from "../components/Landing/FAQ";
 import Footer from "../components/Landing/Footer";
-import heroScreenshotImageSrc from "../icons/dashboard-screenshot.png";
-import macHeroScreenshotImageSrc from "../icons/signup-screenshot.png";
+import heroScreenshotImageSrc from "../assets/img/dashboard-screenshot.png";
+import macHeroScreenshotImageSrc from "../assets/img/signup-screenshot.png";
 
 export default () => {
     const Subheading = tw.span`uppercase tracking-widest font-bold text-purple-500`;

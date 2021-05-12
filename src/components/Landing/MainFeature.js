@@ -1,10 +1,10 @@
 import React from "react";
 import tw from "twin.macro";
 import styled from "styled-components";
-import { SectionHeading, Subheading as SubheadingBase } from "../misc/Headings.js";
-import { PrimaryButton as PrimaryButtonBase } from "../misc/Buttons.js";
-import TeamIllustrationSrc from "../../icons/team-illustration-2.svg";
-import { ReactComponent as SvgDotPattern } from "../../icons/dot-pattern.svg"
+import { SectionHeading, Subheading as SubheadingBase } from "../Misc/Headings.js";
+import { PrimaryButton as PrimaryButtonBase } from "../Misc/Buttons.js";
+import TeamIllustrationSrc from "../../assets/icons/team-illustration-2.svg";
+import { ReactComponent as SvgDotPattern } from "../../assets/icons/dot-pattern.svg"
 
 const Container = tw.div`relative`;
 const TwoColumn = tw.div`flex flex-col md:flex-row justify-between max-w-screen-xl mx-auto py-20 md:py-24 items-center`;

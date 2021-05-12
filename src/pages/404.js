@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { ForbiddenIcon } from '../icons'
+import { ForbiddenIcon } from '../assets/icons'
 
 function Page404() {
   return (

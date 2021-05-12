@@ -1,16 +1,16 @@
 import React, { useContext, Suspense, useEffect, lazy } from 'react'
 import { Switch, Route, Redirect, useLocation } from 'react-router-dom'
-import routes from '../routes'
+import routes from '../../routes'
 
-import Sidebar from '../components/Sidebar'
-import Header from '../components/Header'
-import Main from '../containers/Main'
-import LoadingPage from '../components/LoadingPage'
-import { SidebarContext } from '../context/SidebarContext'
+import Sidebar from '../Sidebar'
+import DashboardHeader from '../Headers/DashboardHeader'
+import DashboardContainer from './DashboardContainer'
+import LoadingPage from '../Misc/LoadingPage'
+import { SidebarContext } from '../../utils/context/SidebarContext'
 
-const Page404 = lazy(() => import('../pages/404'))
+const Page404 = lazy(() => import('../../pages/404'))
 
-function Layout() {
+function DashboardLayout() {
   const { isSidebarOpen, closeSidebar } = useContext(SidebarContext)
   let location = useLocation()
 
@@ -25,8 +25,8 @@ function Layout() {
       <Sidebar />
 
       <div className="flex flex-col flex-1 w-full">
-        <Header />
-        <Main>
+        <DashboardHeader />
+        <DashboardContainer>
           <Suspense fallback={<LoadingPage />}>
             <Switch>
               {routes.map((route, i) => {
@@ -43,10 +43,10 @@ function Layout() {
               <Route component={Page404} />
             </Switch>
           </Suspense>
-        </Main>
+        </DashboardContainer>
       </div>
     </div>
   )
 }
 
-export default Layout
+export default DashboardLayout

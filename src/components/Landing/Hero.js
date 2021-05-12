@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
 
-import Header from "../Landing/LandingHeader";
+import Header from "../Headers/LandingHeader";
 
-import { ReactComponent as SvgDecoratorBlob1 } from "../../icons/decorator-blob.svg";
-import DesignIllustration from "../../icons/design-illustration.svg";
+import { ReactComponent as SvgDecoratorBlob1 } from "../../assets/icons/decorator-blob.svg";
+import DesignIllustration from "../../assets/icons/design-illustration.svg";
 
 const Container = tw.div`relative`;
 const TwoColumn = tw.div`flex flex-col lg:flex-row lg:items-center max-w-screen-xl mx-auto py-20 md:py-24`;

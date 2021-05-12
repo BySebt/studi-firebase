@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { SidebarContext } from '../context/SidebarContext'
+import { SidebarContext } from '../../utils/context/SidebarContext'
 import {
   MenuIcon,
   OutlinePersonIcon,
@@ -7,10 +7,10 @@ import {
   SunIcon,
   MoonIcon,
   UserIcon
-} from '../icons'
+} from '../../assets/icons'
 import { Dropdown, DropdownItem, WindmillContext } from '@windmill/react-ui'
 
-function Header() {
+function DashboardHeader() {
   const { mode, toggleMode } = useContext(WindmillContext)
   const { toggleSidebar } = useContext(SidebarContext)
 
@@ -84,4 +84,4 @@ function Header() {
   )
 }
 
-export default Header
+export default DashboardHeader

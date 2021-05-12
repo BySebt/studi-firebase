@@ -1,8 +1,8 @@
 import React, { lazy } from 'react'
 import { BrowserRouter as Router, Switch, Route} from 'react-router-dom'
-import AccessibleNavigationAnnouncer from './components/AccessibleNavigationAnnouncer'
+import AccessibleNavigationAnnouncer from './components/Misc/AccessibleNavigationAnnouncer'
 
-const Layout = lazy(() => import('./containers/Layout'))
+const Layout = lazy(() => import('./components/Containers/DashboardLayout'))
 const Login = lazy(() => import('./pages/Login'))
 const CreateAccount = lazy(() => import('./pages/SignUp'))
 const LandingPage = lazy(() => import('./pages/LandingPage'))

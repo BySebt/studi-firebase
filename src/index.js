@@ -2,8 +2,8 @@ import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom'
 import './assets/css/tailwind.output.css'
 import App from './App'
-import { SidebarProvider } from './context/SidebarContext'
-import LoadingPage from './components/LoadingPage'
+import { SidebarProvider } from './utils/context/SidebarContext'
+import LoadingPage from './components/Misc/LoadingPage'
 import { Windmill } from '@windmill/react-ui'
 
 ReactDOM.render(

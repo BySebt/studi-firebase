@@ -14,9 +14,9 @@ import {
   Button,
   Pagination,
 } from '@windmill/react-ui'
-import { EditIcon, TrashIcon } from '../icons'
+import { EditIcon, TrashIcon } from '../assets/icons'
 
-import testdata from '../utils/demo/studyData'
+import testdata from '../utils/demodata/studyData'
 // make a copy of the data, for the second table
 
 function Tasks() {

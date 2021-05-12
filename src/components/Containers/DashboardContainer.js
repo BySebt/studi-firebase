@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Main({ children }) {
+function DashboardContainer({ children }) {
   return (
     <main className="h-full overflow-y-auto">
       <div className="container grid px-6 mx-auto">{children}</div>
@@ -8,4 +8,4 @@ function Main({ children }) {
   )
 }
 
-export default Main
+export default DashboardContainer

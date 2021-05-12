@@ -1,16 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
-import { SectionHeading, Subheading as SubheadingBase } from "../misc/Headings.js";
-import { SectionDescription } from "../misc/Typography.js";
+import { SectionHeading, Subheading as SubheadingBase } from "../Misc/Headings.js";
+import { SectionDescription } from "../Misc/Typography.js";
 
-import defaultCardImage from "../../icons/shield-icon.svg";
+import defaultCardImage from "../../assets/icons/shield-icon.svg";
 
-import { ReactComponent as SvgDecoratorBlob3 } from "../../icons/svg-decorator-blob-3.svg";
+import { ReactComponent as SvgDecoratorBlob3 } from "../../assets/icons/svg-decorator-blob-3.svg";
 
-import ShieldIconImage from "../../icons/shield-icon.svg";
-import CustomizeIconImage from "../../icons/customize-icon.svg";
-import FastIconImage from "../../icons/fast-icon.svg";
+import ShieldIconImage from "../../assets/icons/shield-icon.svg";
+import CustomizeIconImage from "../../assets/icons/customize-icon.svg";
+import FastIconImage from "../../assets/icons/fast-icon.svg";
 const Container = tw.div`relative`;
 
 const ThreeColumnContainer = styled.div`

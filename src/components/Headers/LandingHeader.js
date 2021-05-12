@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import tw from "twin.macro";
 import styled from "styled-components";
 
-import useAnimatedNavToggler from "../../helpers/useAnimatedNavToggler.js";
+import useAnimatedNavToggler from "../../utils/helpers/useAnimatedNavToggler.js";
 
 import { ReactComponent as MenuIcon } from "feather-icons/dist/icons/menu.svg";
 import { ReactComponent as CloseIcon } from "feather-icons/dist/icons/x.svg";
@@ -36,7 +36,7 @@ export const LogoLink = styled(NavLink)`
   }
 `;
 
-export const MobileNavLinksContainer = tw.nav`flex flex-1 lg:hidden items-center`;
+export const MobileNavLinksContainer = tw.nav`flex flex-1 lg:hidden items-center justify-between`;
 
 export const NavToggle = tw.button`
   lg:hidden z-20 focus:outline-none hocus:text-purple-500 transition duration-300
