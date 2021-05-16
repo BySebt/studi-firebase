@@ -1,32 +1,46 @@
-import React from 'react'
+import React, {Component} from 'react'
 
 import PageTitle from '../components/Typography/PageTitle'
 import {Input, Label, Textarea, Button} from '@windmill/react-ui'
 
 import {Link} from "react-router-dom";
+import {authMiddleWare} from "../utils/auth";
 
-function Create() {
-    return (
-        <>
-            <PageTitle>Create A New Task</PageTitle>
+class Create extends Component {
 
-            <div className="px-4 py-4 mb-16 bg-white rounded-lg shadow-md dark:bg-gray-800">
-                <Label>
-                    <span>Task</span>
-                    <Input className="mt-2" placeholder="Do homework" />
-                </Label>
+    constructor(props) {
+        super(props);
 
-                <Label className="mt-4">
-                    <span>Task Description</span>
-                    <Textarea className="mt-2" rows="3" placeholder="Enter description." />
-                </Label>
+        this.state = {
+            uiLoading: true,
+            imageLoading: false
+        };
+    }
 
-                <Button className="mt-6" block tag={Link}>
-                    Create
-                </Button>
-            </div>
-        </>
-    )
+    render() {
+        return (
+            <>
+                <PageTitle>Create A New Task</PageTitle>
+
+                <div className="px-4 py-4 mb-16 bg-white rounded-lg shadow-md dark:bg-gray-800">
+                    <Label>
+                        <span>Task</span>
+                        <Input className="mt-2" placeholder="Do homework" />
+                    </Label>
+
+                    <Label className="mt-4">
+                        <span>Task Description</span>
+                        <Textarea className="mt-2" rows="3" placeholder="Enter description." />
+                    </Label>
+
+                    <Button className="mt-6" block tag={Link}>
+                        Create
+                    </Button>
+                </div>
+            </>
+        )
+    }
+
 }
 
 export default Create

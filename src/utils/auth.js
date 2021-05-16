@@ -4,3 +4,10 @@ export const authMiddleWare = (history) => {
         history.push('/login')
     }
 }
+
+export const authLogin = (history) => {
+    const authToken = localStorage.getItem('AuthToken');
+    if(authToken !== null){
+        history.push('/app/dashboard')
+    }
+}
