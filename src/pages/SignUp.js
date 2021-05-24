@@ -155,8 +155,7 @@ class signup extends Component {
                                     block
                                     className="mt-4"
                                     disabled={!this.state.canSubmit}
-                                    onClick={this.handleSubmit}
->
+                                    onClick={this.handleSubmit}>
                                     Create account
                                 </Button>
 

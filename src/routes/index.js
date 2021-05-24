@@ -6,6 +6,7 @@ const Page404 = lazy(() => import('../pages/404'))
 const Blank = lazy(() => import('../pages/About'))
 const Profile = lazy(() =>import('../pages/Profile'))
 const Create = lazy(() => import('../pages/Create'))
+const Revise = lazy(() => import('../pages/Revise'))
 
 const routes = [
   {
@@ -31,6 +32,10 @@ const routes = [
   {
     path: '/about',
     component: Blank,
+  },
+  {
+    path: '/revise',
+    component: Revise,
   },
 ]
 
