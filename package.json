@@ -2,8 +2,8 @@
   "name": "studyi",
   "version": "0.1.1",
   "description": "Studying tool backed by the forgetting curve.",
-  "proxy": "https://australia-southeast1-studyi-b6a90.cloudfunctions.net/api",
-  "proxyOffline": "http://localhost:5000/studyi-b6a90/australia-southeast1/api",
+  "proxyOnline": "https://australia-southeast1-studyi-b6a90.cloudfunctions.net/api",
+  "proxy": "http://localhost:5000/studyi-b6a90/australia-southeast1/api",
   "private": true,
   "scripts": {
     "tailwind:dev": "tailwindcss build src/assets/css/tailwind.css -o src/assets/css/tailwind.output.css",
@@ -20,6 +20,8 @@
   "dependencies": {
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.3.0",
+    "@material-ui/core": "^4.11.4",
+    "@material-ui/lab": "^4.0.0-alpha.58",
     "@owaiswiz/use-in-view": "^1.0.16",
     "@windmill/react-ui": "0.5.1",
     "axios": "^0.21.1",

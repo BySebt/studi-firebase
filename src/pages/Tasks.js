@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import { Skeleton } from '@material-ui/lab';
 
 import PageTitle from '../components/Typography/PageTitle'
 import SectionTitle from '../components/Typography/SectionTitle'
@@ -10,41 +11,44 @@ import {
   TableRow,
   TableFooter,
   TableContainer,
-  Badge,
   Button,
   Pagination,
 } from '@windmill/react-ui'
 import {EditIcon, TrashIcon} from '../assets/icons'
 
-import testdata from '../utils/demodata/studyData'
-import {authMiddleWare} from "../utils/auth";
+import dummyData from '../utils/demodata/studyData'
+import axios from "axios";
 
 const resultsPerPage = 10
-const totalResults = testdata.length
 
-const TaskStatus = {
-  FIRST_REVISION: {badge: "warning", name: "First Revision", identifier: "FIRST_REVISION"},
-  SECOND_REVISION: {badge: "primary", name: "Second Revision", identifier: "SECOND_REVISION"},
-  THIRD_REVISION: {badge: "success", name: "Third Revision", identifier: "THIRD_REVISION"}
-};
 
-function getTaskProperties(taskStatus, badgeOrName){
-  let status = TaskStatus.FIRST_REVISION
+function titleCase(str) {
+  str = str.replace("_", " ")
+  var splitStr = str.toLowerCase().split(' ');
+  for (var i = 0; i < splitStr.length; i++) {
+    // You do not need to check if i is larger than splitStr length, as your for does that for you
+    // Assign it back to the array
+    splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+  }
+  // Directly return the joined string
+  return splitStr.join(' ');
+}
+
+function getTaskColor(taskStatus){
+  let color = "blue";
+
   switch (taskStatus){
-    case TaskStatus.SECOND_REVISION.identifier:
-      status = TaskStatus.SECOND_REVISION
-      break
-    case TaskStatus.THIRD_REVISION.identifier:
-      status = TaskStatus.THIRD_REVISION
-      break
-    default:
-      break
+    case "FIRST_REVISION":
+      color = "pink";
+      break;
+    case "SECOND_REVISION":
+      color = "orange"
+          break;
+    case "THIRD_REVISION":
+      color = "blue"
   }
-  if(badgeOrName === "BADGE"){
-    return status.badge
-  } else {
-    return status.name
-  }
+
+  return `inline-flex px-2 text-xs font-medium leading-5 rounded-full text-${color}-700 bg-${color}-100 dark:text-white dark:bg-${color}-600`;
 }
 
 class Tasks extends Component {
@@ -53,17 +57,41 @@ class Tasks extends Component {
     super(props);
 
     this.state = {
-      dataTable: [],
+      dataTable: dummyData,
       pageTable: 1,
+      totalResults: 10,
       uiLoading: true,
       imageLoading: false
     };
   }
 
+  componentDidMount() {
+    const authToken = localStorage.getItem('AuthToken');
+    axios.defaults.headers.common = { Authorization: `${authToken}` };
+    axios
+        .get('/todos')
+        .then((response) => {
+          console.log(response.data);
+          this.setState({
+            dataTable: response.data,
+            totalResults: response.data.length,
+            uiLoading: false
+          })
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+            localStorage.removeItem('AuthToken');
+            this.props.history.push('/login');
+          }
+          console.log(error);
+          this.setState({ errorMsg: 'Error in retrieving the data' });
+        });
+  }
+
   onPageChangeTable = (p) => {
     this.setState({
       pageTable: p,
-      dataTable: testdata.slice((p - 1) * resultsPerPage, p * resultsPerPage)
+      dataTable: this.state.dataTable.slice((p - 1) * resultsPerPage, p * resultsPerPage)
     })
   }
 
@@ -72,6 +100,7 @@ class Tasks extends Component {
           <PageTitle>Tasks</PageTitle>
 
           <SectionTitle>All Tasks</SectionTitle>
+
           <TableContainer className="mb-8">
             <Table>
               <TableHeader>
@@ -87,21 +116,20 @@ class Tasks extends Component {
                 {this.state.dataTable.map((user, i) => (
                     <TableRow key={i}>
                       <TableCell>
-                        <span className="text-sm">{user.task}</span>
+                        <span className="text-sm">{this.state.uiLoading ? <Skeleton animation="wave" /> : user.name}</span>
                       </TableCell>
 
                       <TableCell>
-                        <Badge type={getTaskProperties(user.status, "BADGE")}>
-                          {getTaskProperties(user.status, "NAME")}
-                        </Badge>
+                        {this.state.uiLoading ? <Skeleton animation="wave" /> :
+                        <span className={getTaskColor(user.status)}>{titleCase(user.status)} </span>}
                       </TableCell>
 
                       <TableCell>
-                        <span className="text-sm">{new Date(user.date_due).toLocaleDateString()}</span>
+                        <span className="text-sm">{this.state.uiLoading ? <Skeleton animation="wave" /> : new Date(user.next_due_date).toLocaleDateString()}</span>
                       </TableCell>
 
                       <TableCell>
-                        <span className="text-sm">{new Date(user.date_created).toLocaleDateString()}</span>
+                        <span className="text-sm">{this.state.uiLoading ? <Skeleton animation="wave" /> : new Date(user.date_created).toLocaleDateString()}</span>
                       </TableCell>
 
                       <TableCell>
@@ -120,7 +148,7 @@ class Tasks extends Component {
             </Table>
             <TableFooter>
               <Pagination
-                  totalResults={totalResults}
+                  totalResults={this.state.totalResults}
                   resultsPerPage={resultsPerPage}
                   onChange={this.onPageChangeTable}
                   label="Table navigation"
