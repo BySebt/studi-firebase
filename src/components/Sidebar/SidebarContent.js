@@ -43,7 +43,7 @@ function SidebarContent() {
         )}
       </ul>
       <div className="px-6 my-6">
-          <a href="/app/revise">
+          <a href="/revise">
               <Button>
                   Start Revising
               </Button>

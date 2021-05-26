@@ -57,6 +57,7 @@ class Tasks extends Component {
     super(props);
 
     this.state = {
+      cacheData: [],
       dataTable: dummyData,
       pageTable: 1,
       totalResults: 10,
@@ -65,15 +66,20 @@ class Tasks extends Component {
     };
   }
 
+  handleClick = (event) => {
+    console.log(event.target.id)
+}
+
   componentDidMount() {
     const authToken = localStorage.getItem('AuthToken');
     axios.defaults.headers.common = { Authorization: `${authToken}` };
     axios
         .get('/todos')
         .then((response) => {
-          console.log(response.data);
+          console.log(response)
           this.setState({
-            dataTable: response.data,
+            cacheData: response.data,
+            dataTable: response.data.slice(0, resultsPerPage),
             totalResults: response.data.length,
             uiLoading: false
           })
@@ -84,14 +90,14 @@ class Tasks extends Component {
             this.props.history.push('/login');
           }
           console.log(error);
-          this.setState({ errorMsg: 'Error in retrieving the data' });
+          this.setState({ errorMsg: 'Error in retrieving the data.' });
         });
   }
 
   onPageChangeTable = (p) => {
     this.setState({
       pageTable: p,
-      dataTable: this.state.dataTable.slice((p - 1) * resultsPerPage, p * resultsPerPage)
+      dataTable: this.state.cacheData.slice((p - 1) * resultsPerPage, p * resultsPerPage)
     })
   }
 
@@ -113,31 +119,31 @@ class Tasks extends Component {
                 </tr>
               </TableHeader>
               <TableBody>
-                {this.state.dataTable.map((user, i) => (
+                {this.state.dataTable.map((task, i) => (
                     <TableRow key={i}>
                       <TableCell>
-                        <span className="text-sm">{this.state.uiLoading ? <Skeleton animation="wave" /> : user.name}</span>
+                        <span className="text-sm">{this.state.uiLoading ? <Skeleton animation="wave" /> : task.name}</span>
                       </TableCell>
 
                       <TableCell>
                         {this.state.uiLoading ? <Skeleton animation="wave" /> :
-                        <span className={getTaskColor(user.status)}>{titleCase(user.status)} </span>}
+                        <span className={getTaskColor(task.status)}>{titleCase(task.status)} </span>}
                       </TableCell>
 
                       <TableCell>
-                        <span className="text-sm">{this.state.uiLoading ? <Skeleton animation="wave" /> : new Date(user.next_due_date).toLocaleDateString()}</span>
+                        <span className="text-sm">{this.state.uiLoading ? <Skeleton animation="wave" /> : new Date(task.next_due_date).toLocaleDateString()}</span>
                       </TableCell>
 
                       <TableCell>
-                        <span className="text-sm">{this.state.uiLoading ? <Skeleton animation="wave" /> : new Date(user.date_created).toLocaleDateString()}</span>
+                        <span className="text-sm">{this.state.uiLoading ? <Skeleton animation="wave" /> : new Date(task.date_created).toLocaleDateString()}</span>
                       </TableCell>
 
                       <TableCell>
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-4" id={task.todoId}>
                           <Button layout="link" size="icon" aria-label="Edit">
                             <EditIcon className="w-5 h-5" aria-hidden="true" />
                           </Button>
-                          <Button layout="link" size="icon" aria-label="Delete">
+                          <Button layout="link" size="icon" aria-label="Delete" id={task.todoId} onClick={this.handleClick}>
                             <TrashIcon className="w-5 h-5" aria-hidden="true" />
                           </Button>
                         </div>
