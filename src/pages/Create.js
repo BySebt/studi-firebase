@@ -165,7 +165,7 @@ class Create extends Component {
                     autoHideDuration={5000}
                     key={Math.random()}>
 
-                    {this.state.error ? <Alert severity="error">Something went wrong!</Alert> :
+                    {this.state.error.isEmpty ? <Alert severity="error">Something went wrong!</Alert> :
                         <Alert severity="success">
                             Task created successfully!
                         </Alert>}

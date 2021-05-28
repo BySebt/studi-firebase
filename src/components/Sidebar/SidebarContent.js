@@ -11,7 +11,12 @@ function Icon({ icon, ...props }) {
   return <Icon {...props} />
 }
 
+// handleCreateClick = () => {
+//     this.props.history.push("/app/create");
+// };
+
 function SidebarContent() {
+
   return (
     <div className="py-4 text-gray-500 dark:text-gray-400">
       <a className="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">
@@ -44,7 +49,7 @@ function SidebarContent() {
       </ul>
       <div className="px-6 my-6">
           <a href="/revise">
-              <Button>
+              <Button >
                   Start Revising
               </Button>
           </a>
