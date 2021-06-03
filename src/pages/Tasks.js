@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { Skeleton } from "@material-ui/lab";
+import React, {Component} from "react";
+import {Skeleton} from "@material-ui/lab";
 
 import PageTitle from "../components/Typography/PageTitle";
 import SectionTitle from "../components/Typography/SectionTitle";
@@ -14,43 +14,13 @@ import {
     Button,
     Pagination,
 } from "@windmill/react-ui";
-import { EditIcon, TrashIcon } from "../assets/icons";
+import {EditIcon, TrashIcon} from "../assets/icons";
 
 import dummyData from "../utils/demodata/studyData";
 import axios from "axios";
+import {getButtonClass, getTaskColor, titleCase} from "../utils/utils";
 
 const resultsPerPage = 10;
-
-function getButtonClass(color) {
-    return `align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-${color}-400 border border-transparent active:bg-${color}-400 hover:bg-${color}-500 focus:shadow-outline-${color}`;
-}
-
-function titleCase(str) {
-    str = str.replace("_", " ");
-    const splitStr = str.toLowerCase().split(" ");
-    for (let i = 0; i < splitStr.length; i++) {
-        splitStr[i] =
-            splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
-    }
-    return splitStr.join(" ");
-}
-
-function getTaskColor(taskStatus) {
-    let color = "blue";
-
-    switch (taskStatus) {
-        case "FIRST_REVISION":
-            color = "pink";
-            break;
-        case "SECOND_REVISION":
-            color = "orange";
-            break;
-        case "THIRD_REVISION":
-            color = "blue";
-    }
-
-    return `inline-flex px-2 text-xs font-medium leading-5 rounded-full text-${color}-700 bg-${color}-100 dark:text-white dark:bg-${color}-600`;
-}
 
 class Tasks extends Component {
     constructor(props) {
@@ -78,7 +48,7 @@ class Tasks extends Component {
             loading: true,
         });
 
-        axios.defaults.headers.common = { Authorization: `${authToken}` };
+        axios.defaults.headers.common = {Authorization: `${authToken}`};
         axios
             .delete(`/todo/${task_id}`)
             .then((response) => {
@@ -91,10 +61,11 @@ class Tasks extends Component {
 
     componentDidMount() {
         const authToken = localStorage.getItem("AuthToken");
-        axios.defaults.headers.common = { Authorization: `${authToken}` };
+        axios.defaults.headers.common = {Authorization: `${authToken}`};
         axios
             .get("/todos")
             .then((response) => {
+                console.log(response.data)
                 this.setState({
                     cacheData: response.data,
                     dataTable: response.data.slice(0, resultsPerPage),
@@ -108,7 +79,7 @@ class Tasks extends Component {
                     this.props.history.push("/login");
                 }
                 console.log(error);
-                this.setState({ errorMsg: "Error in retrieving the data." });
+                this.setState({errorMsg: "Error in retrieving the data."});
             });
     }
 
@@ -125,38 +96,38 @@ class Tasks extends Component {
     render() {
         return (
             <>
-                <div className="flex mb-4 justify-between">
+                <div className='flex mb-4 justify-between'>
                     <PageTitle>Tasks</PageTitle>
 
                     <button
-                        className={"mx-10 my-6 " + getButtonClass("green")}
-                        onClick={this.handleCreateClick}
-                    >
+                        className={"my-6 " + getButtonClass("green")}
+                        onClick={this.handleCreateClick}>
                         Create a task
                     </button>
                 </div>
 
                 <SectionTitle>All Tasks</SectionTitle>
 
-                <TableContainer className="mb-8">
+                <TableContainer className='mb-8'>
                     <Table>
                         <TableHeader>
                             <tr>
                                 <TableCell>Task</TableCell>
                                 <TableCell>Status</TableCell>
+                                <TableCell>Time Required</TableCell>
+
                                 <TableCell>Date Due</TableCell>
                                 <TableCell>Date Created</TableCell>
                                 <TableCell>Actions</TableCell>
                             </tr>
                         </TableHeader>
                         <TableBody>
-                            {console.log(this.state.dataTable.length)}
                             {this.state.dataTable.map((task, i) => (
                                 <TableRow key={i}>
                                     <TableCell>
-                    <span className="text-sm">
+                    <span className='text-sm'>
                       {this.state.loading ? (
-                          <Skeleton animation="wave" />
+                          <Skeleton animation='wave'/>
                       ) : (
                           task.name
                       )}
@@ -165,7 +136,7 @@ class Tasks extends Component {
 
                                     <TableCell>
                                         {this.state.loading ? (
-                                            <Skeleton animation="wave" />
+                                            <Skeleton animation='wave'/>
                                         ) : (
                                             <span className={getTaskColor(task.status)}>
                         {titleCase(task.status)}{" "}
@@ -174,9 +145,19 @@ class Tasks extends Component {
                                     </TableCell>
 
                                     <TableCell>
-                    <span className="text-sm">
+                    <span className='text-sm text-center'>
                       {this.state.loading ? (
-                          <Skeleton animation="wave" />
+                          <Skeleton animation='wave'/>
+                      ) : (
+                          task.time_required + " minutes"
+                      )}
+                    </span>
+                                    </TableCell>
+
+                                    <TableCell>
+                    <span className='text-sm'>
+                      {this.state.loading ? (
+                          <Skeleton animation='wave'/>
                       ) : (
                           new Date(task.next_due_date).toLocaleDateString()
                       )}
@@ -184,9 +165,9 @@ class Tasks extends Component {
                                     </TableCell>
 
                                     <TableCell>
-                    <span className="text-sm">
+                    <span className='text-sm'>
                       {this.state.loading ? (
-                          <Skeleton animation="wave" />
+                          <Skeleton animation='wave'/>
                       ) : (
                           new Date(task.date_created).toLocaleDateString()
                       )}
@@ -195,25 +176,22 @@ class Tasks extends Component {
 
                                     <TableCell>
                                         <div
-                                            className="flex items-center space-x-4"
-                                            data-key={task.todoId}
-                                        >
+                                            className='flex items-center space-x-4'
+                                            data-key={task.todoId}>
                                             <Button
-                                                layout="link"
-                                                size="icon"
-                                                aria-label="Edit"
-                                                disabled={this.state.loading}
-                                            >
-                                                <EditIcon className="w-5 h-5" aria-hidden="true" />
+                                                layout='link'
+                                                size='icon'
+                                                aria-label='Edit'
+                                                disabled={this.state.loading}>
+                                                <EditIcon className='w-5 h-5' aria-hidden='true'/>
                                             </Button>
                                             <Button
-                                                layout="link"
-                                                size="icon"
-                                                aria-label="Delete"
+                                                layout='link'
+                                                size='icon'
+                                                aria-label='Delete'
                                                 onClick={this.handleClick}
-                                                disabled={this.state.loading}
-                                            >
-                                                <TrashIcon className="w-5 h-5" aria-hidden="true" />
+                                                disabled={this.state.loading}>
+                                                <TrashIcon className='w-5 h-5' aria-hidden='true'/>
                                             </Button>
                                         </div>
                                     </TableCell>
@@ -226,7 +204,7 @@ class Tasks extends Component {
                             totalResults={this.state.totalResults}
                             resultsPerPage={resultsPerPage}
                             onChange={this.onPageChangeTable}
-                            label="Table navigation"
+                            label='Table navigation'
                         />
                     </TableFooter>
                 </TableContainer>
