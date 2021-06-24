@@ -19,6 +19,7 @@ import {EditIcon, TrashIcon} from "../assets/icons";
 import dummyData from "../utils/demodata/studyData";
 import axios from "axios";
 import {getButtonClass, getTaskColor, titleCase} from "../utils/utils";
+import {authMiddleWare, handleError} from "../utils/auth";
 
 const resultsPerPage = 10;
 
@@ -74,11 +75,7 @@ class Tasks extends Component {
                 });
             })
             .catch((error) => {
-                if (error.response.status === 403) {
-                    localStorage.removeItem("AuthToken");
-                    this.props.history.push("/login");
-                }
-                console.log(error);
+                handleError(error, this.props.history);
                 this.setState({errorMsg: "Error in retrieving the data."});
             });
     }

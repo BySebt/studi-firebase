@@ -1,12 +1,12 @@
 import React, {Component} from 'react'
 import InfoCard from '../components/Cards/InfoCard'
 import PageTitle from '../components/Typography/PageTitle'
-import {TaskLeftIcon, CompletedIcon, DueIcon, TotalIcon, StudyiIcon, EditIcon, TrashIcon} from '../assets/icons'
+import {DueIcon, TotalIcon} from '../assets/icons'
 import RoundIcon from '../components/Misc/RoundIcon'
 import {getButtonClass, getTaskColor, titleCase} from "../utils/utils";
 
 import {
-    Button, Pagination,
+    Pagination,
     Table,
     TableBody,
     TableCell,
@@ -18,9 +18,37 @@ import {
 import SectionTitle from "../components/Typography/SectionTitle";
 import DescriptionCard from "../components/Cards/DescriptionCard";
 import axios from "axios";
-import {CircularProgress} from "@material-ui/core";
 
 const resultsPerPage = 10
+
+
+function getEmptyRevisonDocument(){
+    return {
+        finish_time: -1,
+        finished: true,
+        start_time: Date.now(),
+        task_completed: 0,
+        tasks_left: 0,
+        total_tasks: 0,
+        tasks_skipped: 0,
+        time_left: 0,
+        revision_tasks: []
+    };
+}
+
+function getNewRevisionDocument(tasks_due, total_time){
+    return {
+        finish_time: -1,
+        finished: false,
+        start_time: Date.now(),
+        task_completed: 0,
+        tasks_left: tasks_due.size,
+        total_tasks: tasks_due.size,
+        tasks_skipped: 0,
+        time_left: total_time,
+        revision_tasks: tasks_due
+    };
+}
 
 class Revise extends Component {
 
@@ -28,7 +56,7 @@ class Revise extends Component {
         super(props);
 
         this.state = {
-            tasksDue: [],
+            current_revision: [],
             dataTable: [],
             totalTime: 0,
             pageTable: 1,
@@ -37,6 +65,7 @@ class Revise extends Component {
         };
 
         // This binding is necessary to make `this` work in the callback
+        this.handleCompleteClick = this.handleCompleteClick.bind(this);
         this.handleClick = this.handleClick.bind(this);
     }
 
@@ -46,50 +75,103 @@ class Revise extends Component {
         }));
     }
 
+    handleCompleteClick(taskID) {
+        console.log("Click")
+        // let current_revision = this.state.current_revision;
+        // let i = 0
+        // for(i; i < current_revision.revision_tasks.length; i++){
+        //     if (current_revision.revision_tasks[i].id === taskID) {
+        //         current_revision.revision_tasks[i].finished = true;
+        //         current_revision.time_left -= current_revision.revision_tasks[i].time_required;
+        //     }
+        // }
+        //
+        // current_revision.tasks_left -= 1;
+        // current_revision.task_completed += 1;
+        //
+        // console.log(current_revision);
+
+        // axios.post("/revision/completed", )
+        // axios.defaults.headers.common = { Authorization: `${localStorage.getItem("AuthToken")}`};
+        //
+        // axios.
+        //
+        //
+        // let array = [...this.state.current_revision];
+        // console.log(array)
+        // array.revision_tasks.slice(1);
+        // this.setState({
+        //     current_revision: array
+        // })
+    }
+
     componentDidMount = () => {
-        const authToken = localStorage.getItem("AuthToken");
-        axios.defaults.headers.common = { Authorization: `${authToken}` };
-        axios
-            .get("/todos")
+        axios.defaults.headers.common = { Authorization: `${localStorage.getItem("AuthToken")}`};
+
+        axios.get("/revision")
+            .then((response) =>{
+                if(response.data.status === "NO_PENDING_TASK"){
+                    return axios.get("/todos");
+                } else {
+                    console.log(response.data.revisionDoc)
+                    this.setState({
+                        current_revision: response.data.revisionDoc,
+                        loading: false,
+                    })
+                    return null;
+                }
+            })
             .then((response) => {
+                if(response == null){
+                    return null;
+                }
                 let due_today = [];
                 let total_time = 0;
+
+                if(response.data.size === 0){
+                    this.setState({
+                        revision_document: getEmptyRevisonDocument(),
+                    })
+                    return null;
+                }
+
                 response.data.forEach(item => {
                     if(Date.now() > item.next_due_date){
                         due_today.push(item);
                         total_time += item.time_required
                     }
                 })
-                this.setState({
-                    tasksDue: due_today,
-                    totalTime: total_time,
-                    dataTable: due_today.slice(0, resultsPerPage),
-                    loading: false,
-                });
-            })
-            .catch((error) => {
-                if (error.response.status === 403) {
-                    localStorage.removeItem("AuthToken");
-                    this.props.history.push("/login");
-                }
-                console.log(error);
-            });
 
-        this.setState({
-            pageTable: 1,
-        })
+                const revision_document = getNewRevisionDocument(due_today, total_time);
+
+                this.setState({
+                    current_revision: revision_document,
+                })
+
+                console.log(revision_document)
+
+                return axios.post("/revision/new", revision_document);
+            })
+            .then((response) => {
+                if(response == null){
+                    return null;
+                }
+                this.setState({
+                    loading: false
+                })
+            })
     };
 
     onPageChangeTable = (p) => {
         this.setState({
             pageTable: p,
-            dataTable: this.state.tasksDue.slice((p - 1) * resultsPerPage, p * resultsPerPage)
+            dataTable: this.state.current_revision.revision_tasks.slice((p - 1) * resultsPerPage, p * resultsPerPage)
         })
     }
 
 
     render() {
-        if(this.state.loading)
+        if(this.state.loading || !(this.state.current_revision))
             return (
                 <span className="text-lg p-5">Loading...</span>
             )
@@ -100,7 +182,7 @@ class Revise extends Component {
                     <PageTitle>Revision In Progress</PageTitle>
 
                     <div className="grid gap-6 mb-8 md:grid-cols-2">
-                        <InfoCard title="Time Left" value="38 minutes">
+                        <InfoCard title="Time Left" value={`${this.state.current_revision.time_left} minutes`}>
                             <RoundIcon
                                 icon={DueIcon}
                                 iconColorClass="text-purple-500 dark:text-purple-100"
@@ -109,7 +191,7 @@ class Revise extends Component {
                             />
                         </InfoCard>
 
-                        <InfoCard title="Tasks Left" value="2">
+                        <InfoCard title="Tasks Left" value={`${this.state.current_revision.tasks_left} Tasks`}>
                             <RoundIcon
                                 icon={TotalIcon}
                                 iconColorClass="text-blue-500 dark:text-blue-100"
@@ -121,16 +203,16 @@ class Revise extends Component {
 
                     <SectionTitle>Current Task</SectionTitle>
 
-                    <DescriptionCard className="mb-5" title="Electricity Tramission" value="Page 39"/>
+                    <DescriptionCard className="mb-5" title={`${this.state.current_revision.revision_tasks[0].name}`} value={`${this.state.current_revision.revision_tasks[0].description}`}/>
 
                     <div className="mt-5 grid gap-6 mb-8 grid-cols-2">
-                        <button className={getButtonClass("green")}>Complete</button>
-                        <button className={getButtonClass("red")}>Skip</button>
+                        <button onClick={this.handleCompleteClick("kHzIVfDPC0VdxtJcoaao")} className={getButtonClass("green") }>Complete</button>
+                        {/*<button className={getButtonClass("red")}>Skip</button>*/}
                     </div>
                 </>)
         }
 
-        if(this.state.tasksDue.length === 0){
+        if(this.state.current_revision.revision_tasks.length === 0){
             return (
                 <>
                     <PageTitle>Tasks Due Today</PageTitle>
@@ -144,7 +226,7 @@ class Revise extends Component {
                     <SectionTitle>Here is a summary of what you'll study today.</SectionTitle>
 
                     <div className="grid gap-6 mb-8 md:grid-cols-2">
-                        <InfoCard title="Estimated Time" value={this.state.totalTime + " minutes"}>
+                        <InfoCard title="Estimated Time" value={this.state.current_revision.time_left + " minutes"}>
                             <RoundIcon
                                 icon={DueIcon}
                                 iconColorClass="text-purple-500 dark:text-purple-100"
@@ -153,7 +235,7 @@ class Revise extends Component {
                             />
                         </InfoCard>
 
-                        <InfoCard title="Total Tasks Due" value={this.state.tasksDue.length}>
+                        <InfoCard title="Total Tasks Due" value={this.state.current_revision.total_tasks}>
                             <RoundIcon
                                 icon={TotalIcon}
                                 iconColorClass="text-blue-500 dark:text-blue-100"
@@ -176,7 +258,7 @@ class Revise extends Component {
                                     </tr>
                                 </TableHeader>
                                 <TableBody>
-                                    {this.state.dataTable.map((task, i) => (
+                                    {this.state.current_revision.revision_tasks.map((task, i) => (
                                         <TableRow key={i}>
                                             <TableCell>
                                                 <span className="text-sm">{task.name}</span>
@@ -197,7 +279,7 @@ class Revise extends Component {
                             </Table>
                             <TableFooter>
                                 <Pagination
-                                    totalResults={this.state.tasksDue.length}
+                                    totalResults={this.state.current_revision.revision_tasks.size}
                                     resultsPerPage={resultsPerPage}
                                     onChange={this.onPageChangeTable}
                                     label="Table navigation"

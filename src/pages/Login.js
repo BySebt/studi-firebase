@@ -25,6 +25,10 @@ class login extends Component {
 
     componentDidMount = () => {
         authLogin(this.props.history);
+        // console.log("NO_TOKEN FOUND: " +this.props.history.location.pathname.includes("NO_TOKEN"))
+        // if(this.props.history.location.pathname.includes("NO_TOKEN")){
+        //     authLogin(this.props.history);
+        // }
     };
 
     handleChange = (event) => {

@@ -18,7 +18,7 @@ function DashboardHeader() {
   const history = useHistory();
 
   useEffect(() => {
-    authMiddleWare(history);
+    // authMiddleWare(history);
   });
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
