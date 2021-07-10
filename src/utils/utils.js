@@ -3,6 +3,10 @@ export function getButtonClass(color){
 }
 
 export function titleCase(str) {
+
+    if(str == null)
+        return str;
+
     str = str.replace("_", " ");
     const splitStr = str.toLowerCase().split(" ");
     for (let i = 0; i < splitStr.length; i++) {
