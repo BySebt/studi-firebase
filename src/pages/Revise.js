@@ -76,7 +76,6 @@ class Revise extends Component {
     }
 
     beginRevision(){
-        l("Revision started.")
         this.setState({
             current_task: this.state.current_revision.revision_tasks[0]
         })
@@ -89,9 +88,6 @@ class Revise extends Component {
                     if (response == null) {
                         return null;
                     }
-
-                    l("Posted new revision: ");
-
                     this.setState({
                         loading: false,
                         status: "IN_PROGRESS"
@@ -107,39 +103,51 @@ class Revise extends Component {
     }
 
     handleCompleteClick() {
+        let revision_tasks = this.state.current_revision.revision_tasks;
+        let revision = this.state.current_revision;
+        let pending_unfinished_task = false;
         const finished_task_id = this.state.current_task.id;
 
         // Loop through tasks
-        for(let i = 0; i < this.state.current_revision.revision_tasks.length; i++){
-
+        for(let i = 0; i < revision_tasks.length; i++){
             // If the task ids match
-            if (this.state.current_revision.revision_tasks[i].id === finished_task_id) {
-
+            if (revision_tasks[i].id === finished_task_id) {
                 // Set task to finished
-                this.state.current_revision.revision_tasks[i].finished = true;
+                revision_tasks[i].finished = true;
 
                 // Remove time left
-                this.state.current_revision.time_left -= this.state.current_revision.revision_tasks[i].time_required;
+                revision.time_left -= revision_tasks[i].time_required;
+                revision.tasks_left -= 1;
+                revision.task_completed++;
 
-                this.state.current_revision.tasks_left -= 1;
+                // The id of the finished task
+                revision.finished_task_id = finished_task_id;
+                revision.finished_task_status = this.state.current_task.status;
 
                 // Find a new task
-                for(let j = 0; j < this.state.current_revision.revision_tasks.length; j++) {
-                    if(this.state.current_revision.revision_tasks[j].finished === false){
-                        l("Found the next unfinished task.")
-
+                for(let j = 0; j < revision_tasks.length; j++) {
+                    if(revision_tasks[j].finished === false){
+                        // There is an unfinished task
+                        pending_unfinished_task = true;
                         this.setState({
-                            current_task: this.state.current_revision.revision_tasks[j],
+                            current_task: revision_tasks[j],
                         })
-                        return;
                     }
                 }
 
-                l("All completed.")
-
-                this.setState({
-                    status: "FINISHED",
-                })
+                // If there are no tasks left (i.e finished)
+                if(!pending_unfinished_task){
+                    revision.finished = true;
+                    this.setState({
+                        status: "FINISHED",
+                    })
+                }
+                axios.post("/revision/completed", revision)
+                    .then((response) => {
+                        if (response == null) {
+                            return null;
+                        }
+                    })
 
                 // No tasks left
                 break;
@@ -148,7 +156,6 @@ class Revise extends Component {
     }
 
     // This function is called when the page is first loaded
-
     componentDidMount = () => {
         axios.defaults.headers.common = {Authorization: `${localStorage.getItem("AuthToken")}`};
 
@@ -162,7 +169,7 @@ class Revise extends Component {
                     l("No pending revision found.");
 
                     // Proceed to fetch a list of tasks
-                    return axios.get("/todos");
+                    return axios.get("/todos/due");
                 } else {
                     l("Pending revision found:");
                     console.log(response.data.revisionDoc)
@@ -183,11 +190,14 @@ class Revise extends Component {
                 let due_today = [];
                 let total_time = 0;
 
-                if (response.data.size === 0) {
+                console.log(response.data)
+
+                if (response.data.length === 0) {
                     l("No due tasks.");
                     this.setState({
                         revision_document: getEmptyRevisonDocument(),
-                        status: "NONE_DUE"
+                        status: "NONE_DUE",
+                        loading: false,
                     })
                     return null;
                 }

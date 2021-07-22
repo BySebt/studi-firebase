@@ -10,6 +10,14 @@ function validateEmail(email)
     return re.test(email);
 }
 
+function getMonday(d) {
+    d = new Date(d);
+    const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+    const date = new Date(d.setDate(diff));
+    date.setHours(0,0,0,0);
+    return date;
+}
+
 class signup extends Component {
 
 
@@ -69,12 +77,15 @@ class signup extends Component {
         const newUserData = {
             name: this.state.name,
             email: this.state.email,
-            password: this.state.password
+            password: this.state.password,
+            monday_ms: getMonday(new Date()).getTime(),
         }
+
         axios
             .post("/signup", newUserData)
             .then((response) => {
                 localStorage.setItem("AuthToken", `${response.data.token}`)
+                localStorage.setItem("userID", `${response.data.userID}`)
                 this.setState({
                     canSubmit: false,
                 })

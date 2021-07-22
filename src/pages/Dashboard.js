@@ -22,39 +22,19 @@ class Dashboard extends Component {
     super(props);
 
     this.state = {
-      firstName: '',
-      lastName: '',
-      profilePicture: '',
-      uiLoading: true,
-      imageLoading: false
+      graph_data: [],
+      total_tasks: 0,
+      due_this_week: 0,
+      completed_today: 0,
+      left_today: 0
     };
   }
 
   componentDidMount = () => {
-    // authMiddleWare(this.props.history);
-    // const authToken = localStorage.getItem('AuthToken');
-    // axios.defaults.headers.common = { Authorization: `${authToken}` };
-    // axios
-    //     .get('/user')
-    //     .then((response) => {
-    //       this.setState({
-    //         firstName: response.data.userCredentials.firstName,
-    //         lastName: response.data.userCredentials.lastName,
-    //         email: response.data.userCredentials.email,
-    //         phoneNumber: response.data.userCredentials.phoneNumber,
-    //         country: response.data.userCredentials.country,
-    //         username: response.data.userCredentials.username,
-    //         uiLoading: false,
-    //         profilePicture: response.data.userCredentials.imageUrl
-    //       });
-    //     })
-    //     .catch((error) => {
-    //       if(error.response.status === 403) {
-    //         this.props.history.push('/login')
-    //       }
-    //       console.log(error);
-    //       this.setState({ errorMsg: 'Error in retrieving the data' });
-    //     });
+    axios.get("/weekly")
+        .then((r) => {
+          console.log(r.data)
+        })
   };
 
   render() {
