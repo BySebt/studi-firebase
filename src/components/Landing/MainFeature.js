@@ -5,7 +5,7 @@ import { SectionHeading, Subheading as SubheadingBase } from "../Misc/Headings.j
 import { PrimaryButton as PrimaryButtonBase } from "../Misc/Buttons.js";
 import TeamIllustrationSrc from "../../assets/icons/team-illustration-2.svg";
 import { ReactComponent as SvgDotPattern } from "../../assets/icons/dot-pattern.svg"
-
+import {Button} from "@material-ui/core";
 const Container = tw.div`relative`;
 const TwoColumn = tw.div`flex flex-col md:flex-row justify-between max-w-screen-xl mx-auto py-20 md:py-24 items-center`;
 const Column = tw.div`w-full max-w-md mx-auto md:max-w-none md:mx-0`;
@@ -74,7 +74,7 @@ export default ({
                         <Subheading>{subheading}</Subheading>
                         <Heading>{heading}</Heading>
                         <Description>{description}</Description>
-                        <PrimaryButton buttonRounded={buttonRounded} as="a" href={purpleButtonUrl}>
+                        <PrimaryButton href={"/signup"} a={"/signup"}>
                             {purpleButtonText}
                         </PrimaryButton>
                     </TextContent>

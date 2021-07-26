@@ -3,7 +3,7 @@ import tw from "twin.macro";
 import styled from "styled-components";
 import { css } from "styled-components/macro"; //eslint-disable-line
 import { SectionHeading, Subheading as SubheadingBase } from "../Misc/Headings.js";
-import TeamIllustrationSrc from "../../assets/icons/team-illustration-2.svg";
+import TeamIllustrationSrc from "../../assets/icons/design-illustration-2.svg";
 import { ReactComponent as SvgDotPattern } from "../../assets/icons/dot-pattern.svg"
 
 const Container = tw.div`relative`;

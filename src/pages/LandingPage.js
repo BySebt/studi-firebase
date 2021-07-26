@@ -8,7 +8,7 @@ import FeatureWithSteps from "../components/Landing/FeatureWithSteps";
 import FAQ from "../components/Landing/FAQ";
 import Footer from "../components/Landing/Footer";
 import heroScreenshotImageSrc from "../assets/img/dashboard-screenshot.png";
-import macHeroScreenshotImageSrc from "../assets/img/signup-screenshot.png";
+import TeamIllustrationSrc from "../assets/icons/design-illustration-2.svg";
 
 export default () => {
     const Subheading = tw.span`uppercase tracking-widest font-bold text-purple-500`;
@@ -16,7 +16,11 @@ export default () => {
 
     return (
         <AnimationRevealPage>
-            <Hero roundedHeaderButton={true} />
+            <Hero
+                roundedHeaderButton={true}
+                imageDecoratorBlob={true}
+
+            />
             <Features
                 subheading={<Subheading>Features</Subheading>}
                 heading={
@@ -39,7 +43,7 @@ export default () => {
                     </>
                 }
                 textOnLeft={false}
-                imageSrc={macHeroScreenshotImageSrc}
+                imageSrc={TeamIllustrationSrc}
                 imageDecoratorBlob={true}
                 decoratorBlobCss={tw`xl:w-40 xl:h-40 opacity-20 -translate-x-1/2 left-1/2`}
             />

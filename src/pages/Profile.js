@@ -53,8 +53,8 @@ function Profile() {
 
                 <Label className="mt-4">
                     <span>Email</span>
-                    <Input disabled className="mt-2" placeholder="name@email.com" />
-                    <span className="mt-4">Email is read only.</span>
+                    <Input className="mt-2" placeholder="name@email.com" />
+                    {/*<span className="mt-4">Email is read only.</span>*/}
                 </Label>
 
                 <Button className="mt-6" block tag={Link}>

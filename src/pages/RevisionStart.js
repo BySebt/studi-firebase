@@ -16,7 +16,6 @@ import {
     TableRow
 } from "@windmill/react-ui";
 import SectionTitle from "../components/Typography/SectionTitle";
-import DescriptionCard from "../components/Cards/DescriptionCard";
 import axios from "axios";
 
 const resultsPerPage = 10
@@ -54,7 +53,7 @@ function getNewRevisionDocument(tasks_due, total_time) {
     };
 }
 
-class Revise extends Component {
+class RevisionStart extends Component {
 
     constructor(props) {
         super(props);
@@ -68,92 +67,35 @@ class Revise extends Component {
             loading: true,
             new_revision: false,
             status: "DEFAULT",
+            revision_id: ""
         };
 
         // This binding is necessary to make `this` work in the callback
-        this.handleCompleteClick = this.handleCompleteClick.bind(this);
         this.handleClick = this.handleClick.bind(this);
     }
 
-    beginRevision(){
-        this.setState({
-            current_task: this.state.current_revision.revision_tasks[0]
-        })
+    beginRevision(revision_id) {
+        if(revision_id == null)
+            return;
+        this.props.history.push(`/app/revise/${revision_id}`)
     }
 
     handleClick() {
-        console.log(this.state.current_revision)
         if (this.state.status === "NEW_REVISION") {
             axios.post("/revision/new", this.state.current_revision)
                 .then((response) => {
-                    if (response == null) {
-                        return null;
-                    }
-                    this.setState({
-                        loading: false,
-                        status: "IN_PROGRESS"
-                    })
-                })
+                    console.log(response)
+                    this.beginRevision(response.data)
+                }).catch((error) => {
+                console.log(error)
+            })
         } else {
             this.setState(state => ({
                 status: "IN_PROGRESS"
             }));
+            this.beginRevision(this.state.revision_id)
         }
 
-        this.beginRevision()
-    }
-
-    handleCompleteClick() {
-        let revision_tasks = this.state.current_revision.revision_tasks;
-        let revision = this.state.current_revision;
-        let pending_unfinished_task = false;
-        const finished_task_id = this.state.current_task.id;
-
-        // Loop through tasks
-        for(let i = 0; i < revision_tasks.length; i++){
-            // If the task ids match
-            if (revision_tasks[i].id === finished_task_id) {
-                // Set task to finished
-                revision_tasks[i].finished = true;
-
-                // Remove time left
-                revision.time_left -= revision_tasks[i].time_required;
-                revision.tasks_left -= 1;
-                revision.task_completed++;
-
-                // The id of the finished task
-                revision.finished_task_id = finished_task_id;
-                revision.finished_task_status = this.state.current_task.status;
-
-                // Find a new task
-                for(let j = 0; j < revision_tasks.length; j++) {
-                    if(revision_tasks[j].finished === false){
-                        // There is an unfinished task
-                        pending_unfinished_task = true;
-                        this.setState({
-                            current_task: revision_tasks[j],
-                        })
-                    }
-                }
-
-                // If there are no tasks left (i.e finished)
-                if(!pending_unfinished_task){
-                    revision.finished = true;
-                    this.setState({
-                        status: "FINISHED",
-                    })
-                }
-                axios.post("/revision/completed", revision)
-                    .then((response) => {
-                        if (response == null) {
-                            return null;
-                        }
-                    })
-
-                // No tasks left
-                break;
-            }
-        }
     }
 
     // This function is called when the page is first loaded
@@ -174,10 +116,10 @@ class Revise extends Component {
                 } else {
                     l("Pending revision found:");
                     console.log(response.data.revisionDoc)
-                    console.log(response.data)
 
                     l("Updating state. FINISHED!");
                     this.setState({
+                        revision_id: response.data.revisionDoc.id,
                         current_revision: response.data.revisionDoc,
                         status: "PENDING_REVISION",
                         loading: false,
@@ -258,48 +200,6 @@ class Revise extends Component {
                 </>)
         }
 
-        if (this.state.status === "IN_PROGRESS") {
-            return (
-                <>
-                    <PageTitle>Revision In Progress</PageTitle>
-
-                    <div className="grid gap-6 mb-8 md:grid-cols-2">
-                        <InfoCard title="Time Left" value={`${this.state.current_revision.time_left} minutes`}>
-                            <RoundIcon
-                                icon={DueIcon}
-                                iconColorClass="text-purple-500 dark:text-purple-100"
-                                bgColorClass="bg-purple-100 dark:bg-purple-500"
-                                className="mr-4"
-                            />
-                        </InfoCard>
-
-                        <InfoCard title="Tasks Left" value={`${this.state.current_revision.tasks_left} Tasks`}>
-                            <RoundIcon
-                                icon={TotalIcon}
-                                iconColorClass="text-blue-500 dark:text-blue-100"
-                                bgColorClass="bg-blue-100 dark:bg-blue-500"
-                                className="mr-4"
-                            />
-                        </InfoCard>
-                    </div>
-
-                    <SectionTitle>Current Task</SectionTitle>
-
-                    <DescriptionCard className="mb-5" title={`${this.state.current_task.name}`}
-                                     value={`${this.state.current_task.description}`}/>
-
-                    <div className="mt-5 grid gap-6 mb-8 grid-cols-2">
-                        <button onClick={this.handleCompleteClick} className={getButtonClass("green")}>Complete Task
-                        </button>
-                        <button className={getButtonClass("red")}>Finish Revision</button>
-                    </div>
-                </>)
-        }
-
-
-
-
-
         return (
             <>
                 <PageTitle>Revision</PageTitle>
@@ -371,4 +271,4 @@ class Revise extends Component {
     }
 }
 
-export default Revise
+export default RevisionStart

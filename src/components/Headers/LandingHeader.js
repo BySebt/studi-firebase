@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import tw from "twin.macro";
 import styled from "styled-components";
-
+import bookIcon from "../../assets/icons/book.svg"
 import useAnimatedNavToggler from "../../utils/helpers/useAnimatedNavToggler.js";
 
 import { ReactComponent as MenuIcon } from "feather-icons/dist/icons/menu.svg";
@@ -67,17 +67,14 @@ export default ({ roundedHeaderButton = false, logoLink, links, className, colla
     const collapseBreakpointCss = collapseBreakPointCssMap[collapseBreakpointClass];
 
     const defaultLogoLink = (
-        <LogoLink href="/" className="text-gray-800">
+        <LogoLink href="/" className="text-purple-500">
+            <img src={bookIcon} className="text-red"/>
             Studyi
         </LogoLink>
     );
 
     logoLink = logoLink || defaultLogoLink;
     links = links || defaultLinks;
-
-    //css={collapseBreakpointCss.desktopNavLinks}
-
-    //css={collapseBreakpointCss.mobileNavLinksContainer}
 
     return (
         <Header className={className || "header-light"}>

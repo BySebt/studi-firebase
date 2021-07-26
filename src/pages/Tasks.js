@@ -45,6 +45,8 @@ class Tasks extends Component {
         const task_id = event.currentTarget.parentNode.getAttribute("data-key");
         const authToken = localStorage.getItem("AuthToken");
 
+        console.log("Deleting task " + task_id)
+
         this.setState({
             loading: true,
         });
@@ -62,6 +64,7 @@ class Tasks extends Component {
 
     componentDidMount() {
         const authToken = localStorage.getItem("AuthToken");
+        console.log("AuthToken: " + authToken)
         axios.defaults.headers.common = {Authorization: `${authToken}`};
         axios
             .get("/todos")
@@ -174,7 +177,7 @@ class Tasks extends Component {
                                     <TableCell>
                                         <div
                                             className='flex items-center space-x-4'
-                                            data-key={task.todoId}>
+                                            data-key={task.id}>
                                             <Button
                                                 layout='link'
                                                 size='icon'

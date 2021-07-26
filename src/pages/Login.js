@@ -23,6 +23,12 @@ class login extends Component {
         })
     }
 
+    handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            this.handleSubmit(event);
+        }
+    }
+
     componentDidMount = () => {
         authLogin(this.props.history);
         // console.log("NO_TOKEN FOUND: " +this.props.history.location.pathname.includes("NO_TOKEN"))
@@ -96,6 +102,7 @@ class login extends Component {
                                         type="email"
                                         name="email"
                                         valid={error ? false : undefined}
+                                        onKeyDown={this.handleKeyDown}
                                         onChange={this.handleChange}/>
                                     {error && (<HelperText valid={false}>Login or password is invalid</HelperText>)}
 
@@ -107,6 +114,7 @@ class login extends Component {
                                         className="mt-1"
                                         type="password"
                                         name="password"
+                                        onKeyDown={this.handleKeyDown}
                                         valid={error ? false : undefined}
                                         onChange={this.handleChange}/>
                                     {error && (<HelperText valid={false}>Login or password is invalid</HelperText>)}

@@ -2,6 +2,7 @@ import axios from "axios";
 import {useHistory} from "react-router-dom";
 
 export const handleError = (error, history) => {
+    console.log(error)
     if(error.response.data && error.response.data.err){
         history.push(`/login/reason=${error.response.data.err}`)
     }
@@ -13,8 +14,6 @@ export const authMiddleWare = (history) => {
         history.push('/login/reason=NO_TOKEN')
         return;
     }
-    //
-    // verifyToken(authToken, history);
 }
 
 export const authLogin = (history) => {
