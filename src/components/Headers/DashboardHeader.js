@@ -1,3 +1,4 @@
+import firebase from 'firebase'
 import React, {Component, useContext, useEffect, useState} from 'react'
 import { SidebarContext } from '../../utils/context/SidebarContext'
 import {
@@ -14,12 +15,7 @@ import {useHistory} from "react-router";
 
 function DashboardHeader() {
   const { mode, toggleMode } = useContext(WindmillContext)
-  const { toggleSidebar } = useContext(SidebarContext)
-  const history = useHistory();
-
-  useEffect(() => {
-    // authMiddleWare(history);
-  });
+  const { toggleSidebar } = useContext(SidebarContext);
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
 
@@ -27,9 +23,12 @@ function DashboardHeader() {
     setIsProfileMenuOpen(!isProfileMenuOpen)
   }
 
-  function logoutHandler() {
-    localStorage.removeItem('AuthToken');
-    this.props.history.push('/login');
+  function logoutHandler(event) {
+    event.preventDefault();
+
+    firebase
+        .auth()
+        .signOut()
   }
 
     return (

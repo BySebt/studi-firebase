@@ -1,106 +1,87 @@
-import React, {Component} from "react"
+import firebase from 'firebase'
+import React, {Component, useState} from "react"
 import {Link} from "react-router-dom"
 import axios from "axios"
 
 import {Input, Label, Button, HelperText} from "@windmill/react-ui"
+import {processErrorCode} from "../utils/utils";
+import {useToast} from "@chakra-ui/react";
+const {isEmail} = require("../utils/validate")
 
-function validateEmail(email)
-{
-    const re = /\S+@\S+\.\S+/;
-    return re.test(email);
-}
+export default function SignUp(){
+    const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPass, setConfirmPass] = useState("");
+    const [loading, setLoading] = useState(false);
+    const toast = useToast();
 
-function getMonday(d) {
-    d = new Date(d);
-    const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-    const date = new Date(d.setDate(diff));
-    date.setHours(0,0,0,0);
-    return date;
-}
-
-class signup extends Component {
-
-
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            name: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-            error: "",
-            canSubmit: false,
+    function handleKeyDown(event) {
+        if (event.key === 'Enter') {
+            if(name && password && confirmPass && email && !loading){
+                handleSubmit(event);
+            }
         }
     }
 
-    setError(e) {
-        this.setState({
-            error: e,
-        })
-    }
-
-    handleChange = (event) => {
-        this.setState({
-            error: "",
-            [event.target.name]: event.target.value,
-        })
-
-        if(this.state.name && this.state.email && this.state.password && this.state.confirmPassword){
-            this.setState({canSubmit: true})
-        }
-    }
-
-    handleSubmit = (event) => {
+    function handleSubmit(event) {
         event.preventDefault()
 
-        if(!this.state.canSubmit){
+        if (!isEmail(email)) {
+            toast({
+                title: "Invalid Email",
+                description: "Please make sure your email is correct.",
+                status: "error",
+                duration: 3000,
+            })
             return;
         }
 
-        if(!validateEmail(this.state.email)){
-            this.setError("INVALID_EMAIL")
+        if (password.length < 6 && confirmPass.length < 6) {
+            toast({
+                title: "Invalid Passwords",
+                description: "Passwords must be longer then 6 characters.",
+                status: "error",
+                duration: 3000,
+            })
             return;
         }
 
-        if(this.state.password.length < 6){
-            this.setError("INVALID_PASSWORD")
+        if (confirmPass !== password) {
+            toast({
+                title: "Mismatched Passwords",
+                description: "Make sure both the passwords are identical.",
+                status: "error",
+                duration: 3000,
+            })
             return;
         }
 
-        if (this.state.confirmPassword !== this.state.password) {
-            this.setError("MISMATCH_PASSWORD")
-            return;
-        }
+        setLoading(true)
 
-        this.setState({canSubmit: false})
-        const newUserData = {
-            name: this.state.name,
-            email: this.state.email,
-            password: this.state.password,
-            monday_ms: getMonday(new Date()).getTime(),
-        }
-
-        axios
-            .post("/signup", newUserData)
-            .then((response) => {
-                localStorage.setItem("AuthToken", `${response.data.token}`)
-                localStorage.setItem("userID", `${response.data.userID}`)
-                this.setState({
-                    canSubmit: false,
+        firebase.auth()
+            .createUserWithEmailAndPassword(email, password)
+            .then((userCred) => {
+                // After user is signed up, update the display name.
+                // When user signs up, the user is signed in, and will be directed by react router
+                userCred.user.updateProfile({
+                    displayName: name,
+                }).then(() => {
+                    toast.closeAll()
+                    setLoading(false)
                 })
-                this.props.history.push("/app/dashboard")
             })
             .catch((error) => {
-                this.setState({
-                    error: error.response.data.error,
-                    canSubmit: true,
+                toast({
+                    title: processErrorCode(error.code),
+                    description: error.message,
+                    status: "error",
+                    duration: 5000,
                 })
+                setLoading(false)
             })
     }
 
-    render() {
-        const error = this.state.error
         return (
             <div className="flex items-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
                 <div className="flex-1 h-full max-w-md mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-800">
@@ -117,7 +98,9 @@ class signup extends Component {
                                         name="name"
                                         type="text"
                                         placeholder="Your name"
-                                        onChange={this.handleChange}
+                                        onChange={(e) => setName(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+
                                     />
                                 </Label>
                                 <Label className="mt-4">
@@ -127,11 +110,10 @@ class signup extends Component {
                                         name="email"
                                         type="email"
                                         placeholder="name@email.com"
-                                        valid={error === "EMAIL_TAKEN" || error === "INVALID_EMAIL" ? false : undefined}
-                                        onChange={this.handleChange}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        onKeyDown={handleKeyDown}
+
                                     />
-                                    {error === "EMAIL_TAKEN"  && (<HelperText valid={false}>This Email is being used by another user!</HelperText>)}
-                                    {error === "INVALID_EMAIL"  && (<HelperText valid={false}>Invalid Email Address.</HelperText>)}
 
                                 </Label>
                                 <Label className="mt-4">
@@ -141,10 +123,9 @@ class signup extends Component {
                                         name="password"
                                         placeholder="********"
                                         type="password"
-                                        valid={error === "INVALID_PASSWORD" ? false : undefined}
-                                        onChange={this.handleChange}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        onKeyDown={handleKeyDown}
                                     />
-                                    {error === "INVALID_PASSWORD" && (<HelperText valid={false}>Password must be atleast 6 characters long.</HelperText>)}
 
                                 </Label>
                                 <Label className="mt-4">
@@ -154,19 +135,16 @@ class signup extends Component {
                                         name="confirmPassword"
                                         placeholder="********"
                                         type="password"
-                                        valid={error === "MISMATCH_PASSWORD" ? false : undefined}
-                                        onChange={this.handleChange}
+                                        onChange={(e) => setConfirmPass(e.target.value)}
+                                        onKeyDown={handleKeyDown}
                                     />
-                                    {error === "MISMATCH_PASSWORD" && (<HelperText valid={false}>Mismatch with password!</HelperText>)}
-
                                 </Label>
-
 
                                 <Button
                                     block
                                     className="mt-4"
-                                    disabled={!this.state.canSubmit}
-                                    onClick={this.handleSubmit}>
+                                    disabled={!name || !password || !confirmPass || !email || loading}
+                                    onClick={handleSubmit}>
                                     Create account
                                 </Button>
 
@@ -177,13 +155,18 @@ class signup extends Component {
                                         Already have an account? Login
                                     </Link>
                                 </p>
+
+                                <p className="mt-1">
+                                    <Link
+                                        className="text-sm font-medium text-purple-600 dark:text-purple-400 hover:underline"
+                                        to="/">
+                                        Back to Homepage
+                                    </Link>
+                                </p>
                             </div>
                         </main>
                     </div>
                 </div>
             </div>
         )
-    }
 }
-
-export default signup

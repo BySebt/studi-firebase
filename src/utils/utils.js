@@ -2,6 +2,8 @@ export function getButtonClass(color){
     return `align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-${color}-400 border border-transparent active:bg-${color}-400 hover:bg-${color}-500 focus:shadow-outline-${color}`
 }
 
+
+
 export function titleCase(str) {
 
     if(str == null)
@@ -14,6 +16,12 @@ export function titleCase(str) {
             splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
     }
     return splitStr.join(" ");
+}
+
+export function processErrorCode(errorcode){
+    errorcode = errorcode.substring(5)
+    errorcode = errorcode.replace(/-/g, ' ')
+    return titleCase(errorcode)
 }
 
 export function getTaskColor(taskStatus) {

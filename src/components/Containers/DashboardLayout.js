@@ -1,3 +1,4 @@
+import firebase from 'firebase'
 import React, { useContext, Suspense, useEffect, lazy } from 'react'
 import { Switch, Route, Redirect, useLocation } from 'react-router-dom'
 import routes from '../../routes'
@@ -30,6 +31,7 @@ function DashboardLayout() {
           <Suspense fallback={<LoadingPage />}>
             <Switch>
               {routes.map((route, i) => {
+
                 return route.component ? (
                   <Route
                     key={i}

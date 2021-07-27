@@ -1,4 +1,5 @@
-import React, {Component} from 'react'
+import firebase from 'firebase'
+import React, {Component, useEffect, useState} from 'react'
 import InfoCard from '../components/Cards/InfoCard'
 import PageTitle from '../components/Typography/PageTitle'
 import {DueIcon, TotalIcon} from '../assets/icons'
@@ -19,7 +20,6 @@ import SectionTitle from "../components/Typography/SectionTitle";
 import axios from "axios";
 
 const resultsPerPage = 10
-
 
 function getEmptyRevisonDocument() {
     return {
@@ -53,39 +53,33 @@ function getNewRevisionDocument(tasks_due, total_time) {
     };
 }
 
-class RevisionStart extends Component {
+export default function RevisionStart(){
+    const [currentRevision, setCurrentRevision] = useState({});
+    const [dataTable, setDataTable] = useState([]);
+    const [pageTable, setPageTable] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [status, setStatus] = useState("DEFAULT");
+    const [revisionID, setRevisionID] = useState("");
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            current_revision: {},
-            current_task: [],
-            dataTable: [],
-            totalTime: 0,
-            pageTable: 1,
-            loading: true,
-            new_revision: false,
-            status: "DEFAULT",
-            revision_id: ""
-        };
-
-        // This binding is necessary to make `this` work in the callback
-        this.handleClick = this.handleClick.bind(this);
-    }
-
-    beginRevision(revision_id) {
-        if(revision_id == null)
+    function beginRevision(revisionID) {
+        if(revisionID == null)
             return;
-        this.props.history.push(`/app/revise/${revision_id}`)
+        this.props.history.push(`/app/revise/${revisionID}`)
     }
 
-    handleClick() {
-        if (this.state.status === "NEW_REVISION") {
-            axios.post("/revision/new", this.state.current_revision)
+    function onPageChangeTable(p) {
+        setPageTable(p)
+        setDataTable(currentRevision.revision_tasks.slice((p - 1) * resultsPerPage, p * resultsPerPage))
+    }
+
+    function handleClick(event) {
+        event.preventDefault();
+
+        if (status === "NEW_REVISION") {
+            axios.post("/revision/new", currentRevision)
                 .then((response) => {
                     console.log(response)
-                    this.beginRevision(response.data)
+                    beginRevision(response.data)
                 }).catch((error) => {
                 console.log(error)
             })
@@ -93,182 +87,171 @@ class RevisionStart extends Component {
             this.setState(state => ({
                 status: "IN_PROGRESS"
             }));
-            this.beginRevision(this.state.revision_id)
+            beginRevision(revisionID)
         }
 
     }
 
     // This function is called when the page is first loaded
-    componentDidMount = () => {
-        axios.defaults.headers.common = {Authorization: `${localStorage.getItem("AuthToken")}`};
+    useEffect(() => {
 
-        l("Component did mount.");
+        firebase.auth().currentUser.getIdToken()
+            .then((token) => {
+                axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
 
-        // First make a request to /revision to check for an unfinished revisions
-        axios.get("/revision")
-            .then((response) => {
-                // If there are no pending revisions
-                if (response.data.status === "NO_PENDING_REVISION") {
-                    l("No pending revision found.");
+                l("Component did mount.");
 
-                    // Proceed to fetch a list of tasks
-                    return axios.get("/todos/due");
-                } else {
-                    l("Pending revision found:");
-                    console.log(response.data.revisionDoc)
+                // First make a request to /revision to check for an unfinished revisions
+                axios.get("/revision")
+                    .then((response) => {
+                        // If there are no pending revisions
+                        if (response.data.status === "NO_PENDING_REVISION") {
+                            l("No pending revision found.");
 
-                    l("Updating state. FINISHED!");
-                    this.setState({
-                        revision_id: response.data.revisionDoc.id,
-                        current_revision: response.data.revisionDoc,
-                        status: "PENDING_REVISION",
-                        loading: false,
+                            // Proceed to fetch a list of tasks
+                            return axios.get("/todos/due");
+                        } else {
+                            l("Pending revision found:");
+                            console.log(response.data.revisionDoc)
+
+                            l("Updating state. FINISHED!");
+
+                            setRevisionID(response.data.revisionDoc.id)
+                            setCurrentRevision(response.data.revisionDoc)
+                            setStatus("PENDING_REVISION")
+                            setLoading(false)
+                            return null;
+                        }
                     })
-                    return null;
-                }
-            })
-            .then((response) => {
-                if (response == null) {
-                    return null;
-                }
-                let due_today = [];
-                let total_time = 0;
+                    .then((response) => {
+                        if (response == null) {
+                            return null;
+                        }
+                        let due_today = [];
+                        let total_time = 0;
 
-                console.log(response.data)
+                        console.log(response.data)
 
-                if (response.data.length === 0) {
-                    l("No due tasks.");
-                    this.setState({
-                        revision_document: getEmptyRevisonDocument(),
-                        status: "NONE_DUE",
-                        loading: false,
+                        if (response.data.length === 0) {
+                            l("No due tasks.");
+
+                            setCurrentRevision(getEmptyRevisonDocument())
+                            setStatus("NONE_DUE")
+                            setLoading(false)
+
+                            return null;
+                        }
+
+                        l("Due tasks found.");
+
+                        response.data.forEach(item => {
+                            if (Date.now() > item.next_due_date) {
+                                due_today.push(item);
+                                total_time += item.time_required
+                            }
+                        })
+
+                        const revision_document = getNewRevisionDocument(due_today, total_time);
+
+                        l("Updating state. FINISHED!");
+
+                        setCurrentRevision(revision_document)
+                        setStatus("NEW_REVISION")
+                        setLoading(false)
                     })
-                    return null;
-                }
-
-                l("Due tasks found.");
-
-                response.data.forEach(item => {
-                    if (Date.now() > item.next_due_date) {
-                        due_today.push(item);
-                        total_time += item.time_required
-                    }
-                })
-
-                const revision_document = getNewRevisionDocument(due_today, total_time);
-
-                l("Updating state. FINISHED!");
-
-                this.setState({
-                    current_revision: revision_document,
-                    status: "NEW_REVISION",
-                    loading: false
-                })
-
-                console.log(revision_document)
             })
-
-    };
-
-    onPageChangeTable = (p) => {
-        this.setState({
-            pageTable: p,
-            dataTable: this.state.current_revision.revision_tasks.slice((p - 1) * resultsPerPage, p * resultsPerPage)
-        })
-    }
+        // The empty array prevents infinite loops
+    }, []);
 
 
-    render() {
-        if (this.state.loading || !(this.state.current_revision))
-            return (
-                <span className="text-lg p-5">Loading...</span>
-            )
+    if (loading || !(currentRevision))
+        return (
+            <span className="text-lg p-5">Loading...</span>
+        )
 
-        if (this.state.status === "NONE_DUE") {
-            return (
-                <>
-                    <PageTitle>Tasks Due Today</PageTitle>
-                    <SectionTitle>Nothing due! All caught up.</SectionTitle>
-                </>)
-        }
-
-        if (this.state.status === "FINISHED") {
-            return (
-                <>
-                    <PageTitle>Finished!</PageTitle>
-                    <SectionTitle>You are all done for today. Good job!</SectionTitle>
-                </>)
-        }
-
+    if (status === "NONE_DUE") {
         return (
             <>
-                <PageTitle>Revision</PageTitle>
-                <SectionTitle>Here is a summary of what you'll study today.</SectionTitle>
-
-                <div className="grid gap-6 mb-8 md:grid-cols-2">
-                    <InfoCard title="Estimated Time" value={this.state.current_revision.time_left + " minutes"}>
-                        <RoundIcon
-                            icon={DueIcon}
-                            iconColorClass="text-purple-500 dark:text-purple-100"
-                            bgColorClass="bg-purple-100 dark:bg-purple-500"
-                            className="mr-4"
-                        />
-                    </InfoCard>
-
-                    <InfoCard title="Total Tasks Due" value={this.state.current_revision.total_tasks}>
-                        <RoundIcon
-                            icon={TotalIcon}
-                            iconColorClass="text-blue-500 dark:text-blue-100"
-                            bgColorClass="bg-blue-100 dark:bg-blue-500"
-                            className="mr-4"
-                        />
-                    </InfoCard>
-                </div>
-                <button className={getButtonClass(this.state.status === "NEW_REVISION" ? "green" : "purple")}
-                        onClick={this.handleClick}>{this.state.status === "NEW_REVISION" ? "Start a new Revision" : "Continue Revision"}</button>
-
                 <PageTitle>Tasks Due Today</PageTitle>
-
-                <TableContainer className="mb-8">
-                    <Table>
-                        <TableHeader>
-                            <tr>
-                                <TableCell>Task</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Time Required</TableCell>
-                            </tr>
-                        </TableHeader>
-                        <TableBody>
-                            {this.state.current_revision.revision_tasks.map((task, i) => (
-                                <TableRow key={i}>
-                                    <TableCell>
-                                        <span className="text-sm">{task.name}</span>
-                                    </TableCell>
-
-                                    <TableCell>
-                                        <span className={getTaskColor(task.status)}>{titleCase(task.status)}{" "}</span>
-                                    </TableCell>
-
-                                    <TableCell>
-                                        <span
-                                            className="text-sm">{task.time_required + " minutes"}</span>
-                                    </TableCell>
-
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                    <TableFooter>
-                        <Pagination
-                            totalResults={this.state.current_revision.revision_tasks.length}
-                            resultsPerPage={resultsPerPage}
-                            onChange={this.onPageChangeTable}
-                            label="Table navigation"
-                        />
-                    </TableFooter>
-                </TableContainer>
+                <SectionTitle>Nothing due! All caught up.</SectionTitle>
             </>)
     }
+
+    if (status === "FINISHED") {
+        return (
+            <>
+                <PageTitle>Finished!</PageTitle>
+                <SectionTitle>You are all done for today. Good job!</SectionTitle>
+            </>)
+    }
+
+    return (
+        <>
+            <PageTitle>Revision</PageTitle>
+            <SectionTitle>Here is a summary of what you'll study today.</SectionTitle>
+
+            <div className="grid gap-6 mb-8 md:grid-cols-2">
+                <InfoCard title="Estimated Time" value={currentRevision.time_left + " minutes"}>
+                    <RoundIcon
+                        icon={DueIcon}
+                        iconColorClass="text-purple-500 dark:text-purple-100"
+                        bgColorClass="bg-purple-100 dark:bg-purple-500"
+                        className="mr-4"
+                    />
+                </InfoCard>
+
+                <InfoCard title="Total Tasks Due" value={currentRevision.total_tasks}>
+                    <RoundIcon
+                        icon={TotalIcon}
+                        iconColorClass="text-blue-500 dark:text-blue-100"
+                        bgColorClass="bg-blue-100 dark:bg-blue-500"
+                        className="mr-4"
+                    />
+                </InfoCard>
+            </div>
+            <button className={getButtonClass(status === "NEW_REVISION" ? "green" : "purple")}
+                    onClick={handleClick}>{status === "NEW_REVISION" ? "Start a new Revision" : "Continue Revision"}</button>
+
+            <PageTitle>Tasks Due Today</PageTitle>
+
+            <TableContainer className="mb-8">
+                <Table>
+                    <TableHeader>
+                        <tr>
+                            <TableCell>Task</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Time Required</TableCell>
+                        </tr>
+                    </TableHeader>
+                    <TableBody>
+                        {currentRevision.revision_tasks.map((task, i) => (
+                            <TableRow key={i}>
+                                <TableCell>
+                                    <span className="text-sm">{task.name}</span>
+                                </TableCell>
+
+                                <TableCell>
+                                    <span className={getTaskColor(task.status)}>{titleCase(task.status)}{" "}</span>
+                                </TableCell>
+
+                                <TableCell>
+                                        <span
+                                            className="text-sm">{task.time_required + " minutes"}</span>
+                                </TableCell>
+
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                <TableFooter>
+                    <Pagination
+                        totalResults={currentRevision.revision_tasks.length}
+                        resultsPerPage={resultsPerPage}
+                        onChange={onPageChangeTable}
+                        label="Table navigation"
+                    />
+                </TableFooter>
+            </TableContainer>
+        </>)
 }
 
-export default RevisionStart

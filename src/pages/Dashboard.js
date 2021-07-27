@@ -1,3 +1,4 @@
+import firebase from 'firebase'
 import React, {Component, useState, useEffect} from 'react'
 import InfoCard from '../components/Cards/InfoCard'
 import ChartCard from '../components/Chart/ChartCard'
@@ -7,12 +8,8 @@ import PageTitle from '../components/Typography/PageTitle'
 import {TaskLeftIcon, CompletedIcon, DueIcon, TotalIcon, StudyiIcon} from '../assets/icons'
 import RoundIcon from '../components/Misc/RoundIcon'
 import axios from "axios";
+import { Skeleton, Spinner } from "@chakra-ui/react"
 
-
-import {
-    lineOptions,
-} from '../utils/demodata/chartsData'
-import {authMiddleWare, handleError} from "../utils/auth";
 
 
 const lineLegends = [
@@ -77,157 +74,166 @@ class Dashboard extends Component {
     }
 
     componentDidMount = () => {
-        const authToken = localStorage.getItem("AuthToken");
-        axios.defaults.headers.common = {Authorization: `${authToken}`};
-        axios
-            .get("/todos")
-            .then((response) => {
-                // Dash board items
-                let tasks_total = response.data.length;
-                let tasks_due_this_week = 0;
-                let tasks_completed_today = 0;
-                let tasks_due_today = 0;
+        firebase.auth().currentUser.getIdToken()
+            .then((token) => {
+                axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
+                axios
+                    .get("/api/todos")
+                    .then((response) => {
+                        // Dash board items
+                        let tasks_total = response.data.length;
+                        let tasks_due_this_week = 0;
+                        let tasks_completed_today = 0;
+                        let tasks_due_today = 0;
 
-                // Date Object
-                let week_date = new Date();
-                let monday_start_ms = getMonday(week_date).getTime();
+                        // Date Object
+                        let week_date = new Date();
+                        let monday_start_ms = getMonday(week_date).getTime();
 
-                // 6.048e+8 is 168 hours in ms, minus one or else it would be the next monday
-                let sunday_end_ms = monday_start_ms + 604799999;
+                        // 6.048e+8 is 168 hours in ms, minus one or else it would be the next monday
+                        let sunday_end_ms = monday_start_ms + 604799999;
 
-                // Date Object
-                let today_date = new Date();
+                        // Date Object
+                        let today_date = new Date();
 
-                // Margin of today
-                today_date.setHours(0, 0, 0, 0);
-                let today_start_ms = today_date.getTime();
+                        // Margin of today
+                        today_date.setHours(0, 0, 0, 0);
+                        let today_start_ms = today_date.getTime();
 
-                today_date.setHours(23, 59, 59, 999);
-                let today_end_ms = today_date.getTime();
-                l("----------------------------------")
-                l("Dashboard loading")
+                        today_date.setHours(23, 59, 59, 999);
+                        let today_end_ms = today_date.getTime();
+                        l("----------------------------------")
+                        l("Dashboard loading")
 
-                l("monday_start_ms: " + new Date(monday_start_ms).toDateString())
-                l("sunday_end_ms: " + new Date(sunday_end_ms).toDateString())
-                l("today_start_ms: " + new Date(today_start_ms).toDateString())
-                l("today_end_ms: " + new Date(today_end_ms).toDateString())
+                        l("monday_start_ms: " + new Date(monday_start_ms).toDateString())
+                        l("sunday_end_ms: " + new Date(sunday_end_ms).toDateString())
+                        l("today_start_ms: " + new Date(today_start_ms).toDateString())
+                        l("today_end_ms: " + new Date(today_end_ms).toDateString())
 
-                // If a task is due on a day, but not finished on the day, then it is late. It is added to "total" but not "finished".
-                const weekly_data = getDefaultWeeklyData(monday_start_ms);
-                const status = ["FIRST_REVISION", "SECOND_REVISION", "THIRD_REVISION"]
+                        // If a task is due on a day, but not finished on the day, then it is late. It is added to "total" but not "finished".
+                        const weekly_data = getDefaultWeeklyData(monday_start_ms);
+                        const status = ["FIRST_REVISION", "SECOND_REVISION", "THIRD_REVISION"]
 
-                response.data.forEach(task => {
+                        console.log(response.data)
 
-                    l("----------------------------------")
-                    l("Looping task: " + task.name)
+                        response.data.forEach(task => {
 
-                    let due_date_ms = task.next_due_date;
+                            l("----------------------------------")
+                            l("Looping task: " + task.name)
 
-                    // If the task is due within today (and incomplete), if it was due today and completed, this due date would not be today again.
-                    if (isToday(due_date_ms)) {
-                        l("This task is due today, and is incomplete.")
-                        tasks_due_today++;
-                    }
+                            let due_date_ms = task.next_due_date;
 
-                    // If the task is due within this week
-                    if (inRange(monday_start_ms, sunday_end_ms, due_date_ms)) {
-                        tasks_due_this_week++;
+                            // If the task is due within today (and incomplete), if it was due today and completed, this due date would not be today again.
+                            if (isToday(due_date_ms)) {
+                                l("This task is due today, and is incomplete.")
+                                tasks_due_today++;
+                            }
 
-                        let day_of_week = getDateFromDay(new Date(due_date_ms).getDay());
+                            // If the task is due within this week
+                            if (inRange(monday_start_ms, sunday_end_ms, due_date_ms)) {
+                                tasks_due_this_week++;
 
-                        l("The task due within this week, on " + day_of_week + ".")
+                                let day_of_week = getDateFromDay(new Date(due_date_ms).getDay());
 
-                        weekly_data[day_of_week].total += 1;
-                    }
+                                l("The task due within this week, on " + day_of_week + ".")
 
-                    for (let i = 0; i < status.length; i++) {
-                        // If the task has history of FIRST, SECOND or THIRD revision
-                        if (status[i] in task) {
-                            let task_doc = task[status[i]];
-                            let due_this_week = false;
+                                weekly_data[day_of_week].total += 1;
+                            }
 
-                            // If the task history was due this week
-                            if (inRange(monday_start_ms, sunday_end_ms, task_doc.due_date))
-                                due_this_week = true
+                            for (let i = 0; i < status.length; i++) {
+                                // If the task has history of FIRST, SECOND or THIRD revision
+                                if (status[i] in task) {
+                                    let task_doc = task[status[i]];
+                                    let due_this_week = false;
 
-                            // If the history was not due this week, continue
-                            // Tasks must be due on the week it was completed. Else, the completion is late and hence wont be recorded
-                            if (!due_this_week)
+                                    // If the task history was due this week
+                                    if (inRange(monday_start_ms, sunday_end_ms, task_doc.due_date))
+                                        due_this_week = true
+
+                                    // If the history was not due this week, continue
+                                    // Tasks must be due on the week it was completed. Else, the completion is late and hence wont be recorded
+                                    if (!due_this_week)
+                                        continue;
+
+                                    let due_day = getDateFromDay(new Date(task_doc.due_date).getDay());
+
+                                    // After setting to the start of the day, check if the ms match. (same day = match)
+                                    // If the task was finished on the day it was due
+                                    l(`Found ${status[i]} in the history of the task. It was due on ${due_day} this week.`)
+
+                                    // Add a total task
+                                    weekly_data[due_day].total += 1;
+
+                                    if (isTheSameDay(task_doc.due_date, task_doc.finished_ms)) {
+                                        l(`The ${status[i]} of this task was due and finished on the same day: ${due_day}.`)
+
+                                        // Add "finished" and "total" to that day (This means it is also within the current week)
+                                        weekly_data[due_day].finished += 1;
+                                    }
+
+                                    if (isToday(task_doc.finished_ms)) {
+                                        l(`The ${status[i]} of this task was finished today.`)
+
+                                        // Task was finished today
+                                        tasks_completed_today += 1;
+                                    }
+
+                                    if (isToday(task_doc.due_date)) {
+                                        l(`The ${status[i]} of this task was due today.`)
+
+                                        // Task was due today
+                                        tasks_due_today += 1;
+                                    }
+                                }
+                            }
+                            l("----------------------------------")
+                        })
+
+                        l("Finished looping tasks, setting state.")
+                        l("----------------------------------")
+
+                        this.setState({
+                            tasks_total: tasks_total,
+                            tasks_due_this_week: tasks_due_this_week,
+                            tasks_completed_today: tasks_completed_today,
+                            tasks_due_today: tasks_due_today
+                        })
+
+                        let weekly_completion_percentage = [0, 0, 0, 0, 0, 0, 0]
+                        let day_index = 0;
+
+                        // This is assuming the weekly data is always from monday to sunday
+                        for (const day in weekly_data) {
+                            if (weekly_data[day].total === 0) {
+                                day_index++;
                                 continue;
-
-                            let due_day = getDateFromDay(new Date(task_doc.due_date).getDay());
-
-                            // After setting to the start of the day, check if the ms match. (same day = match)
-                            // If the task was finished on the day it was due
-                            l(`Found ${status[i]} in the history of the task. It was due on ${due_day} this week.`)
-
-                            // Add a total task
-                            weekly_data[due_day].total += 1;
-
-                            if (isTheSameDay(task_doc.due_date, task_doc.finished_ms)) {
-                                l(`The ${status[i]} of this task was due and finished on the same day: ${due_day}.`)
-
-                                // Add "finished" and "total" to that day (This means it is also within the current week)
-                                weekly_data[due_day].finished += 1;
                             }
 
-                            if (isToday(task_doc.finished_ms)) {
-                                l(`The ${status[i]} of this task was finished today.`)
-
-                                // Task was finished today
-                                tasks_completed_today += 1;
-                            }
-
-                            if (isToday(task_doc.due_date)) {
-                                l(`The ${status[i]} of this task was due today.`)
-
-                                // Task was due today
-                                tasks_due_today += 1;
-                            }
+                            weekly_completion_percentage[day_index] = (weekly_data[day].finished / weekly_data[day].total) * 100;
+                            day_index++;
                         }
-                    }
-                    l("----------------------------------")
-                })
 
-                l("Finished looping tasks, setting state.")
-                l("----------------------------------")
+                        this.setState(prevState => {
+                            let graph_data = Object.assign({}, prevState.graph_data);
+                            graph_data.data.datasets[0].data = weekly_completion_percentage;
+                            return {graph_data};
+                        })
 
-                this.setState({
-                    tasks_total: tasks_total,
-                    tasks_due_this_week: tasks_due_this_week,
-                    tasks_completed_today: tasks_completed_today,
-                    tasks_due_today: tasks_due_today
-                })
-
-                let weekly_completion_percentage = [0, 0, 0, 0, 0, 0, 0]
-                let day_index = 0;
-
-                // This is assuming the weekly data is always from monday to sunday
-                for (const day in weekly_data) {
-                    if (weekly_data[day].total === 0) {
-                        day_index++;
-                        continue;
-                    }
-
-                    weekly_completion_percentage[day_index] = (weekly_data[day].finished / weekly_data[day].total) * 100;
-                    day_index++;
-                }
-
-                this.setState(prevState => {
-                    let graph_data = Object.assign({}, prevState.graph_data);
-                    graph_data.data.datasets[0].data = weekly_completion_percentage;
-                    return {graph_data};
-                })
+                        this.setState({
+                            loading: false
+                        })
 
 
-                // console.log(weekly_completion_percentage)
-                //
-                // console.log(JSON.stringify(weekly_data))
+                        // console.log(weekly_completion_percentage)
+                        //
+                        // console.log(JSON.stringify(weekly_data))
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                        this.setState({errorMsg: "Error in retrieving the data."});
+                    });
             })
-            .catch((error) => {
-                console.log(error)
-                this.setState({errorMsg: "Error in retrieving the data."});
-            });
+
     };
 
     render() {
@@ -235,53 +241,58 @@ class Dashboard extends Component {
             <>
                 <PageTitle>Dashboard</PageTitle>
 
-                <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-                    <InfoCard title="Total Tasks" value={this.state.tasks_total}>
-                        <RoundIcon
-                            icon={TotalIcon}
-                            iconColorClass="text-purple-500 dark:text-purple-100"
-                            bgColorClass="bg-purple-100 dark:bg-purple-500"
-                            className="mr-4"
-                        />
-                    </InfoCard>
+                    <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
 
-                    <InfoCard title="Due this Week" value={this.state.tasks_due_this_week}>
-                        <RoundIcon
-                            icon={DueIcon}
-                            iconColorClass="text-blue-500 dark:text-blue-100"
-                            bgColorClass="bg-blue-100 dark:bg-blue-500"
-                            className="mr-4"
-                        />
-                    </InfoCard>
+                        <InfoCard title="Total Tasks" value={this.state.loading ? <Spinner /> : this.state.tasks_total}>
+                            <RoundIcon
+                                icon={TotalIcon}
+                                iconColorClass="text-purple-500 dark:text-purple-100"
+                                bgColorClass="bg-purple-100 dark:bg-purple-500"
+                                className="mr-4"
+                            />
+                        </InfoCard>
 
-                    <InfoCard title="Completed Today" value={this.state.tasks_completed_today}>
-                        <RoundIcon
-                            icon={CompletedIcon}
-                            iconColorClass="text-green-500 dark:text-green-100"
-                            bgColorClass="bg-green-100 dark:bg-green-500"
-                            className="mr-4"
-                        />
-                    </InfoCard>
+                        <InfoCard title="Due this Week" value={this.state.loading ? <Spinner /> : this.state.tasks_due_this_week}>
+                            <RoundIcon
+                                icon={DueIcon}
+                                iconColorClass="text-blue-500 dark:text-blue-100"
+                                bgColorClass="bg-blue-100 dark:bg-blue-500"
+                                className="mr-4"
+                            />
+                        </InfoCard>
 
-                    <InfoCard title="Unfinished Today"
-                              value={this.state.tasks_due_today - this.state.tasks_completed_today}>
-                        <RoundIcon
-                            icon={TaskLeftIcon}
-                            iconColorClass="text-orange-500 dark:text-orange-100"
-                            bgColorClass="bg-orange-100 dark:bg-orange-500"
-                            className="mr-4"
-                        />
-                    </InfoCard>
-                </div>
+                        <InfoCard title="Completed Today" value={this.state.loading ? <Spinner /> : this.state.tasks_completed_today}>
+                            <RoundIcon
+                                icon={CompletedIcon}
+                                iconColorClass="text-green-500 dark:text-green-100"
+                                bgColorClass="bg-green-100 dark:bg-green-500"
+                                className="mr-4"
+                            />
+                        </InfoCard>
+
+                        <InfoCard title="Unfinished Today"
+                                  value={this.state.loading ? <Spinner /> : (this.state.tasks_due_today - this.state.tasks_completed_today)}>
+                            <RoundIcon
+                                icon={TaskLeftIcon}
+                                iconColorClass="text-orange-500 dark:text-orange-100"
+                                bgColorClass="bg-orange-100 dark:bg-orange-500"
+                                className="mr-4"
+                            />
+                        </InfoCard>
+                    </div>
 
 
-                <PageTitle>Graphs</PageTitle>
-                <div className="grid gap-6 mb-8">
-                    <ChartCard title="Percentage Completion Over Time">
-                        <Line {...this.state.graph_data} />
-                        <ChartLegend legends={lineLegends}/>
-                    </ChartCard>
-                </div>
+                    <PageTitle>Graph</PageTitle>
+
+                {this.state.loading ? <Spinner /> : (
+                    <div className="grid gap-6 mb-8">
+                        <ChartCard title="Percentage Completion Over Time">
+                            <Line {...this.state.graph_data} />
+                            <ChartLegend legends={lineLegends}/>
+                        </ChartCard>
+                    </div>
+                )
+                }
             </>)
     }
 

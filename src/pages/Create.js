@@ -1,179 +1,119 @@
-import React, {Component} from 'react'
-
+import React, {Component, useState} from 'react'
+import firebase from 'firebase'
 import PageTitle from '../components/Typography/PageTitle'
 import {Input, Label, Textarea, Button} from '@windmill/react-ui'
 
 import {Link} from "react-router-dom";
-import {Slider, Snackbar} from "@material-ui/core"
 import axios from "axios";
-import {Alert} from "@material-ui/lab";
+import {Box, useToast} from "@chakra-ui/react";
 
-function valuetext(value) {
-    return `${value} min`;
-}
+import {
+    Slider,
+    SliderTrack,
+    SliderFilledTrack,
+    SliderThumb,
+} from "@chakra-ui/react"
 
-const marks = [
-    {
-        value: 10,
-        label: valuetext(10),
-    },
-    {
-        value: 20,
-        label: valuetext(20),
-    },
-    {
-        value: 30,
-        label: valuetext(30),
-    },
-    {
-        value: 40,
-        label: valuetext(40),
-    },
-    {
-        value: 50,
-        label: valuetext(50),
-    },
-];
 
-class Create extends Component {
+export default function Create(){
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [timeRequired, setTimeRequired] = useState(5);
+    const toast = useToast();
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            canSubmit: false,
-            success: false,
-            error: [],
-            uiLoading: true,
-            time_required: 5,
-            name: "",
-            description: ""
-        };
-
-        this.handleChangeAsync = this.handleChangeAsync.bind(this)
-    }
-
-    handleClose = () => {
-        this.setState({
-            success: false
-        })
-    }
-
-    handleSliderChange = (event, value) => {
-        console.log(value)
-        this.setState({
-            time_required: value
-        })
-    }
-
-    async handleChangeAsync(event){
-        await this.setState({
-            [event.target.name]: event.target.value
-        })
-
-        if(this.state.name && this.state.description && this.state.time_required){
-            this.setState({canSubmit: true})
-        } else {
-            this.setState({canSubmit: false})
-        }
-    }
-
-    handleSubmit = (event) => {
+    function handleSubmit(event) {
         event.preventDefault()
-        if(!this.state.canSubmit){
+
+        if(!name || !description){
             return;
         }
 
-        this.setState({canSubmit: false})
-
+        // Potential Risk to exploit with request intercepter
         const newTodoItem = {
-            name: this.state.name,
-            description: this.state.description,
-            time_required: this.state.time_required,
+            name: name,
+            description: description,
+            time_required: timeRequired,
             next_due_date: Date.now() + 8.64e+7,
             date_created: Date.now(),
             status: "FIRST_REVISION"
         }
 
-        const authToken = localStorage.getItem('AuthToken');
-        axios.defaults.headers.common = { Authorization: `${authToken}` };
-        axios
-            .post("/todo", newTodoItem)
-            .then((response) => {
-                this.setState({
-                    canSubmit: true,
-                    success: true
-                })
-            })
-            .catch((error) => {
-                this.setState({
-                    error: error.response.data.error,
-                    canSubmit: true,
-                    success: true
-                })
+        firebase.auth().currentUser.getIdToken()
+            .then((token) => {
+                axios.defaults.headers.common = { Authorization: `Bearer ${token}` };
+                axios
+                    .post("/todo", newTodoItem)
+                    .then(() => {
+                        toast({
+                            title: "Success!",
+                            description: `${name} has been created. The first revision will be due in 24 hours!`,
+                            status: "success",
+                            duration: 5000,
+                        })
+                        setName("")
+                        setDescription("")
+                    })
+                    .catch((error) => {
+                        toast({
+                            title: "Error!",
+                            description: `Something went wrong. Try again later!`,
+                            status: "error",
+                            duration: 5000,
+                        })
+                        setName("")
+                        setDescription("")
+                    })
             })
     }
 
-    render() {
-        return (
-            <>
-                <PageTitle>Create A New Task</PageTitle>
+    return (
+        <>
+            <PageTitle>Create A New Task</PageTitle>
 
-                <div className="px-4 py-4 mb-16 bg-white rounded-lg shadow-md dark:bg-gray-800">
+            <div className="px-4 py-4 mb-16 bg-white rounded-lg shadow-md dark:bg-gray-800">
 
-                    <Label>
-                        <span>Task</span>
-                        <Input name="name" className="mt-2" placeholder="Do homework" onChange={this.handleChangeAsync} />
-                    </Label>
+                <Label>
+                    <span>Task</span>
+                    <Input
+                        name="name"
+                        value={name}
+                        className="mt-2"
+                        placeholder="Do homework"
+                        onChange={e => setName(e.target.value)} />
+                </Label>
 
-                    <Label className="mt-4">
-                        <span>Task Description</span>
-                        <Textarea className="mt-2" name="description" rows="3" placeholder="Enter description." onChange={this.handleChangeAsync} />
-                    </Label>
+                <Label className="mt-4">
+                    <span>Task Description</span>
+                    <Textarea
+                        className="mt-2"
+                        name="description"
+                        rows="3"
+                        value={description}
+                        placeholder="Enter description."
+                        onChange={e => setDescription(e.target.value)} />
+                </Label>
 
-                    <Label className="mt-4">
-                        <span>Task Length</span>
-                        <Slider
-                            className="mt-2"
-                            name="time_required"
-                            defaultValue={15}
-                            onChangeCommitted={this.handleSliderChange}
-                            getAriaValueText={valuetext}
-                            aria-labelledby="discrete-slider"
-                            valueLabelDisplay="auto"
-                            step={5}
-                            marks={marks}
-                            min={5}
-                            max={60}
-                        />
-                    </Label>
+                <Label className="mt-4">
+                    <span>Task Length: {timeRequired} minutes</span>
 
-                    <Button
-                        className="mt-6"
-                        block
-                        tag={Link}
-                        onClick={this.handleSubmit}
-                        disabled={!this.state.canSubmit}>
-                        Create
-                    </Button>
-                </div>
+                    <Slider defaultValue={15} min={5} max={60} step={5} onChange={value => setTimeRequired(value)}>
+                        <SliderTrack bg={"studyi.300"}>
+                            <Box position="relative" right={10} />
+                            <SliderFilledTrack  bg={"studyi.500"} />
+                        </SliderTrack>
+                        <SliderThumb boxSize={6} />
+                    </Slider>
+                </Label>
 
-                <Snackbar
-                    anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-                    open={this.state.success}
-                    onClose={this.handleClose}
-                    autoHideDuration={5000}
-                    key={Math.random()}>
-
-                    {this.state.error.isEmpty ? <Alert severity="error">Something went wrong!</Alert> :
-                        <Alert severity="success">
-                            Task created successfully!
-                        </Alert>}
-                </Snackbar>
-            </>
-        )
-    }
-
+                <Button
+                    className="mt-6"
+                    block
+                    tag={Link}
+                    onClick={handleSubmit}
+                    disabled={!name || !description}>
+                    Create
+                </Button>
+            </div>
+        </>
+    )
 }
-
-export default Create

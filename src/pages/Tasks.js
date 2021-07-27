@@ -1,4 +1,5 @@
-import React, {Component} from "react";
+import firebase from 'firebase'
+import React, {Component, useContext, useEffect, useState} from "react";
 import {Skeleton} from "@material-ui/lab";
 
 import PageTitle from "../components/Typography/PageTitle";
@@ -11,206 +12,292 @@ import {
     TableRow,
     TableFooter,
     TableContainer,
-    Button,
-    Pagination,
+    Input,
+    Pagination, Label, Textarea, WindmillContext,
 } from "@windmill/react-ui";
-import {EditIcon, TrashIcon} from "../assets/icons";
 
-import dummyData from "../utils/demodata/studyData";
+import {
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    Text,
+    ModalCloseButton,
+    useDisclosure,
+    Stack,
+    Button,
+    InputGroup,
+    IconButton,
+} from "@chakra-ui/react"
+import {EditIcon, SearchIcon, TrashIcon} from "../assets/icons";
+
 import axios from "axios";
 import {getButtonClass, getTaskColor, titleCase} from "../utils/utils";
-import {authMiddleWare, handleError} from "../utils/auth";
+import {useToast} from "@chakra-ui/react";
+import {useHistory} from "react-router-dom";
+import * as PropTypes from "prop-types";
 
 const resultsPerPage = 10;
 
-class Tasks extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            cacheData: dummyData,
-            dataTable: dummyData,
-            pageTable: 1,
-            totalResults: 10,
-            loading: true,
-            imageLoading: false,
-        };
-    }
-
-    handleCreateClick = () => {
-        this.props.history.push("/app/create");
-    };
-
-    handleClick = (event) => {
-        const task_id = event.currentTarget.parentNode.getAttribute("data-key");
-        const authToken = localStorage.getItem("AuthToken");
-
-        console.log("Deleting task " + task_id)
-
-        this.setState({
-            loading: true,
-        });
-
-        axios.defaults.headers.common = {Authorization: `${authToken}`};
-        axios
-            .delete(`/todo/${task_id}`)
-            .then((response) => {
-                this.componentDidMount();
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    };
-
-    componentDidMount() {
-        const authToken = localStorage.getItem("AuthToken");
-        console.log("AuthToken: " + authToken)
-        axios.defaults.headers.common = {Authorization: `${authToken}`};
-        axios
-            .get("/todos")
-            .then((response) => {
-                console.log(response.data)
-                this.setState({
-                    cacheData: response.data,
-                    dataTable: response.data.slice(0, resultsPerPage),
-                    totalResults: response.data.length,
-                    loading: false,
-                });
-            })
-            .catch((error) => {
-                handleError(error, this.props.history);
-                this.setState({errorMsg: "Error in retrieving the data."});
-            });
-    }
-
-    onPageChangeTable = (p) => {
-        this.setState({
-            pageTable: p,
-            dataTable: this.state.cacheData.slice(
-                (p - 1) * resultsPerPage,
-                p * resultsPerPage
-            ),
-        });
-    };
-
-    render() {
-        return (
-            <>
-                <div className='flex mb-4 justify-between'>
-                    <PageTitle>Tasks</PageTitle>
-
-                    <button
-                        className={"my-6 " + getButtonClass("green")}
-                        onClick={this.handleCreateClick}>
-                        Create a task
-                    </button>
-                </div>
-
-                <SectionTitle>All Tasks</SectionTitle>
-
-                <TableContainer className='mb-8'>
-                    <Table>
-                        <TableHeader>
-                            <tr>
-                                <TableCell>Task</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Time Required</TableCell>
-
-                                <TableCell>Date Due</TableCell>
-                                <TableCell>Date Created</TableCell>
-                                <TableCell>Actions</TableCell>
-                            </tr>
-                        </TableHeader>
-                        <TableBody>
-                            {this.state.dataTable.map((task, i) => (
-                                <TableRow key={i}>
-                                    <TableCell>
-                    <span className='text-sm'>
-                      {this.state.loading ? (
-                          <Skeleton animation='wave'/>
-                      ) : (
-                          task.name
-                      )}
-                    </span>
-                                    </TableCell>
-
-                                    <TableCell>
-                                        {this.state.loading ? (
-                                            <Skeleton animation='wave'/>
-                                        ) : (
-                                            <span className={getTaskColor(task.status)}>
-                        {titleCase(task.status)}{" "}
-                      </span>
-                                        )}
-                                    </TableCell>
-
-                                    <TableCell>
-                    <span className='text-sm text-center'>
-                      {this.state.loading ? (
-                          <Skeleton animation='wave'/>
-                      ) : (
-                          task.time_required + " minutes"
-                      )}
-                    </span>
-                                    </TableCell>
-
-                                    <TableCell>
-                    <span className='text-sm'>
-                      {this.state.loading ? (
-                          <Skeleton animation='wave'/>
-                      ) : (
-                          new Date(task.next_due_date).toLocaleDateString()
-                      )}
-                    </span>
-                                    </TableCell>
-
-                                    <TableCell>
-                    <span className='text-sm'>
-                      {this.state.loading ? (
-                          <Skeleton animation='wave'/>
-                      ) : (
-                          new Date(task.date_created).toLocaleDateString()
-                      )}
-                    </span>
-                                    </TableCell>
-
-                                    <TableCell>
-                                        <div
-                                            className='flex items-center space-x-4'
-                                            data-key={task.id}>
-                                            <Button
-                                                layout='link'
-                                                size='icon'
-                                                aria-label='Edit'
-                                                disabled={this.state.loading}>
-                                                <EditIcon className='w-5 h-5' aria-hidden='true'/>
-                                            </Button>
-                                            <Button
-                                                layout='link'
-                                                size='icon'
-                                                aria-label='Delete'
-                                                onClick={this.handleClick}
-                                                disabled={this.state.loading}>
-                                                <TrashIcon className='w-5 h-5' aria-hidden='true'/>
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                    <TableFooter>
-                        <Pagination
-                            totalResults={this.state.totalResults}
-                            resultsPerPage={resultsPerPage}
-                            onChange={this.onPageChangeTable}
-                            label='Table navigation'
-                        />
-                    </TableFooter>
-                </TableContainer>
-            </>
-        );
-    }
+// in miliseconds
+const units = {
+    year: 24 * 60 * 60 * 1000 * 365,
+    month: 24 * 60 * 60 * 1000 * 365 / 12,
+    day: 24 * 60 * 60 * 1000,
+    hour: 60 * 60 * 1000,
+    minute: 60 * 1000,
+    second: 1000
 }
 
-export default Tasks;
+const rtf = new Intl.RelativeTimeFormat('en', {numeric: 'auto'})
+
+const getRelativeTime = (d1, d2 = new Date()) => {
+
+    if(!d1)
+        return
+
+    const elapsed = d1 - d2
+
+    // "Math.abs" accounts for both "past" & "future" scenarios
+    for (const u in units)
+        if (Math.abs(elapsed) > units[u] || u === 'second')
+            return rtf.format(Math.round(elapsed / units[u]), u)
+}
+
+
+function PhoneIcon(props) {
+    return null;
+}
+
+PhoneIcon.propTypes = {color: PropTypes.string};
+export default function Tasks() {
+    const [cacheData, setCacheData] = useState([]);
+    const [dataTable, setDataTable] = useState([]);
+    const [editTask, setEditTask] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [pageTable, setPageTable] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const {isOpen, onOpen, onClose} = useDisclosure()
+    const toast = useToast();
+    const history = useHistory();
+    const { mode, toggleMode } = useContext(WindmillContext)
+
+    function search(event) {
+        let currentSearchTerm = event.currentTarget.value
+        setSearchTerm(currentSearchTerm)
+
+        if(!currentSearchTerm){
+            setDataTable(cacheData.slice(0, resultsPerPage))
+        }
+
+        let newTableData = cacheData.filter(t => t.name.toLowerCase().includes(currentSearchTerm.toLowerCase()))
+        setDataTable(newTableData.slice(0, resultsPerPage))
+    }
+
+    function handleEdit(event) {
+        const task_id = event.currentTarget.parentNode.getAttribute("data-key");
+
+        let findTask = cacheData.filter(t => t.id === task_id);
+        if (findTask == null) {
+            toast({title: "Error!", description: "Task not found!", status: "error", duration: 3000,})
+            return;
+        }
+        setEditTask(findTask[0])
+        onOpen();
+    }
+
+    function handleClick(event) {
+        const task_id = event.currentTarget.parentNode.getAttribute("data-key");
+
+        firebase.auth().currentUser.getIdToken()
+            .then((token) => {
+                console.log("Deleting task " + task_id)
+                setLoading(true)
+                axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
+                axios
+                    .delete(`/todo/${task_id}`)
+                    .then(() => {
+                        toast({
+                            title: "Task Deleted!",
+                            status: "success",
+                            duration: 3000,
+                        })
+
+                        let filteredArr = dataTable.filter(task => task.id !== task_id)
+                        let filteredCachedArr = cacheData.filter(task => task.id !== task_id)
+                        setDataTable(filteredArr)
+                        setCacheData(filteredCachedArr)
+                        setLoading(false)
+                    })
+                    .catch((error) => {
+                        toast({
+                            title: "Error!",
+                            description: "Something went wrong. Try again later!",
+                            status: "error",
+                            duration: 3000,
+                        })
+                    });
+            })
+    };
+
+    useEffect(() => {
+        firebase.auth().currentUser.getIdToken()
+            .then((token) => {
+                axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
+                axios
+                    .get("/todos")
+                    .then((response) => {
+                        console.log(response.data)
+                        setCacheData(response.data)
+                        setDataTable(response.data.slice(0, resultsPerPage))
+                        setLoading(false)
+                    })
+                    .catch((error) => {
+                        console.log(error)
+                    });
+            });
+    }, [])
+
+    function onPageChangeTable(p) {
+        setPageTable(p);
+        setDataTable(cacheData.slice((p - 1) * resultsPerPage, p * resultsPerPage))
+    };
+
+    return (
+        <>
+            <div className='flex justify-between'>
+                <PageTitle>Tasks</PageTitle>
+
+                <button
+                    className={"my-6 " + getButtonClass("green")}
+                    onClick={e => history.push("/app/create")}>
+                    Create a task
+                </button>
+            </div>
+
+            <SectionTitle>All Tasks</SectionTitle>
+
+            <InputGroup className="mb-4">
+                {/*<InputLeftElement*/}
+                {/*    pointerEvents="none"*/}
+                {/*    color="gray.300"*/}
+                {/*    fontSize="1.2em"*/}
+                {/*    children={<Icon as={SearchIcon}/>}*/}
+                {/*/>*/}
+                <Input
+                    placeholder="Search by task name..."
+                    value={searchTerm}
+                    onChange={search}
+                />
+            </InputGroup>
+
+
+            <TableContainer className='mb-8'>
+                <Table>
+                    <TableHeader className="justify-between">
+                        <tr className="justify-between">
+                            <TableCell>Task</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell className={"hidden md:table-cell"}>Time Required</TableCell>
+                            <TableCell className={"hidden md:table-cell"}>Due</TableCell>
+                            <TableCell className={"hidden md:table-cell"}>Created</TableCell>
+                            <TableCell>Actions</TableCell>
+                        </tr>
+                    </TableHeader>
+                    <TableBody>
+                        {dataTable.map((task, i) => (
+                            <TableRow key={i}>
+                                <TableCell>
+                                    <span className='text-sm'>{loading ?
+                                        <Skeleton animation='wave'/> : task.name}</span>
+                                </TableCell>
+
+                                <TableCell>
+                                    <span className={getTaskColor(task.status)}>{titleCase(task.status)}{" "}</span>
+                                </TableCell>
+
+                                <TableCell className={"hidden md:table-cell"}>
+                                    <span className='text-sm'>{task.time_required + " minutes"}</span>
+                                </TableCell>
+
+                                <TableCell className={"hidden md:table-cell"}>
+                                    <span className='text-sm'>{getRelativeTime(task.next_due_date)}</span>
+                                </TableCell>
+
+                                <TableCell className={"hidden md:table-cell"}>
+                                    <span className='text-sm'>{getRelativeTime(task.date_created)}</span>
+                                </TableCell>
+
+                                <TableCell>
+                                    <div
+                                        className='flex items-center space-x-4'
+                                        data-key={task.id}>
+
+                                        <IconButton
+                                            size="xs"
+                                            colorScheme={mode === "dark" ? "gray.800" : "studyi"}
+                                            aria-label='Delete'
+                                            onClick={handleEdit}
+                                            disabled={loading}
+                                            icon={<EditIcon width={15} height={15}/>} />
+
+                                        <IconButton
+                                            size="xs"
+                                            colorScheme={mode === "dark" ? "gray.800" : "studyi"}
+                                            aria-label='Delete'
+                                            onClick={handleClick}
+                                            disabled={loading}
+                                            icon={<TrashIcon width={15} height={15} />} />
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                <TableFooter>
+                    <Pagination
+                        totalResults={dataTable.length}
+                        resultsPerPage={resultsPerPage}
+                        onChange={onPageChangeTable}
+                        label='Table navigation'
+                    />
+                </TableFooter>
+            </TableContainer>
+
+            <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+            >
+                <ModalOverlay/>
+                <ModalContent>
+                    <ModalHeader>Viewing task</ModalHeader>
+                    <ModalCloseButton/>
+                    <ModalBody pb={6}>
+                        <Stack spacing={3}>
+                            {!editTask ? (
+                                <Text fontSize="xl">Error! Task is null.</Text>
+                            ) : (
+                                <>
+                                    <Text fontSize="xl">Name: {editTask.name}</Text>
+                                    <Text fontSize="xl">Description: {editTask.description}</Text>
+                                    <Text fontSize="xl">Status: {titleCase(editTask.status)}</Text>
+                                    <Text fontSize="xl">Created: {getRelativeTime(editTask.date_created)}</Text>
+                                    <Text fontSize="xl">Due: {getRelativeTime(editTask.next_due_date)}</Text>
+                                    <Text fontSize="xl">Time Required: {editTask.time_required} Minutes</Text>
+                                </>
+                            )}
+                        </Stack>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button colorScheme="studyi" onClick={onClose} mr={3}>
+                            Close
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+        </>
+    );
+}

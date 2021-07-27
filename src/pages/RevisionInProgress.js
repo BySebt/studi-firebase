@@ -1,4 +1,5 @@
-import React, {Component} from 'react'
+import firebase from 'firebase'
+import React, {Component, useEffect, useState} from 'react'
 import InfoCard from '../components/Cards/InfoCard'
 import PageTitle from '../components/Typography/PageTitle'
 import {DueIcon, TotalIcon} from '../assets/icons'
@@ -13,36 +14,25 @@ function l(message) {
     console.log("[REVISION] " + message);
 }
 
-class RevisionInProgress extends Component {
+export default function RevisionInProgress(){
+    const [currentRevision, setCurrentRevision] = useState({});
+    const [dataTable, setDataTable] = useState([]);
+    const [pageTable, setPageTable] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [status, setStatus] = useState("DEFAULT");
+    const [revisionID, setRevisionID] = useState("");
+    const [currentTask, setCurrentTask] = useState("");
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            current_revision: {},
-            current_task: [],
-            dataTable: [],
-            totalTime: 0,
-            pageTable: 1,
-            loading: true,
-            new_revision: false,
-            status: "DEFAULT",
-        };
-
-        // This binding is necessary to make `this` work in the callback
-        this.handleCompleteClick = this.handleCompleteClick.bind(this);
-        this.handleDashboard = this.handleDashboard.bind(this);
-    }
-
-    handleDashboard(){
+    function handleDashboard(){
         this.props.history.push("/app/dashboard")
     }
 
-    handleCompleteClick() {
-        let revision_tasks = this.state.current_revision.revision_tasks;
-        let revision = this.state.current_revision;
+    function handleCompleteClick(event) {
+        event.preventDefault();
+
+        let revision_tasks = currentRevision.revision_tasks;
         let pending_unfinished_task = false;
-        const finished_task_id = this.state.current_task.id;
+        const finished_task_id =currentTask.id;
 
         // Loop through tasks
         for (let i = 0; i < revision_tasks.length; i++) {
@@ -52,30 +42,28 @@ class RevisionInProgress extends Component {
                 revision_tasks[i].finished = true;
 
                 // Remove time left
-                revision.time_left -= revision_tasks[i].time_required;
-                revision.tasks_left -= 1;
-                revision.task_completed++;
+                currentRevision.time_left -= revision_tasks[i].time_required;
+                currentRevision.tasks_left -= 1;
+                currentRevision.task_completed++;
 
                 // The id of the finished task
-                revision.finished_task_id = finished_task_id;
-                revision.finished_task_status = this.state.current_task.status;
+                currentRevision.finished_task_id = finished_task_id;
+                currentRevision.finished_task_status =currentTask.status;
 
                 // Find a new task
                 for (let j = 0; j < revision_tasks.length; j++) {
                     if (revision_tasks[j].finished === false) {
                         // There is an unfinished task
                         pending_unfinished_task = true;
-                        this.setState({
-                            current_task: revision_tasks[j],
-                        })
+                        setCurrentTask(revision_tasks[j])
                     }
                 }
 
                 // If there are no tasks left (i.e finished)
                 if (!pending_unfinished_task) {
-                    revision.finished = true;
+                    currentRevision.finished = true;
 
-                    axios.delete(`/revision/${revision.id}`)
+                    axios.delete(`/revision/${currentRevision.id}`)
                         .then((response) => {
                             console.log(response)
                         })
@@ -83,11 +71,9 @@ class RevisionInProgress extends Component {
                             console.log(error)
                         })
 
-                    this.setState({
-                        status: "FINISHED",
-                    })
+                    setStatus("FINISHED")
                 }
-                axios.post("/revision/completed", revision)
+                axios.post("/revision/completed", currentRevision)
                     .then((response) => {
                         if (response == null) {
                             return null;
@@ -101,93 +87,91 @@ class RevisionInProgress extends Component {
     }
 
     // This function is called when the page is first loaded
-    componentDidMount = () => {
-        axios.defaults.headers.common = {Authorization: `${localStorage.getItem("AuthToken")}`};
+    useEffect(() => {
 
-        console.log("Revision ID: " + this.props.match.params.id)
+        firebase.
+            auth().currentUser.getIdToken()
+            .then((token) => {
+                axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
 
-        // First make a request to /revision to check for an unfinished revisions
-        axios.get(`/revision/${this.props.match.params.id}`)
-            .then((response) => {
+                console.log("Revision ID: " + this.props.match.params.id)
 
-                if (response.data.error) {
-                    this.setState({
-                        status: "REVISION_NOT_FOUND",
+                // First make a request to /revision to check for an unfinished revisions
+                axios.get(`/revision/${this.props.match.params.id}`)
+                    .then((response) => {
+
+                        if (response.data.error) {
+                            this.setState({
+                                status: "REVISION_NOT_FOUND",
+                            })
+                        }
+
+                        console.log(response.data.revisionDoc)
+
+                        setCurrentTask(response.data.revisionDoc.revision_tasks[0])
+                        setCurrentRevision(response.data.revisionDoc)
+                        setLoading(false)
+                        return null;
                     })
-                }
-
-                console.log(response.data.revisionDoc)
-
-                this.setState({
-                    current_task: response.data.revisionDoc.revision_tasks[0],
-                    current_revision: response.data.revisionDoc,
-                    loading: false,
-                })
-                return null;
-
             })
-    };
+    }, []);
 
-    render() {
-        if (this.state.loading || !(this.state.current_revision))
-            return (
-                <span className="text-lg p-5">Loading...</span>
-            )
+    if (this.state.loading || !(currentRevision))
+        return (
+            <span className="text-lg p-5">Loading...</span>
+        )
 
-        if(this.state.status === "REVISION_NOT_FOUND"){
-            return (
-                <>
-                    <PageTitle>Task not found!!</PageTitle>
-                    <SectionTitle>This task does not exist, or has been completed already.</SectionTitle>
-                    <Button onClick={this.handleDashboard}>Dashboard</Button>
-                </>)
-        }
-
-        if(this.state.status === "FINISHED"){
-            return (
-                <>
-                    <PageTitle>Finished!</PageTitle>
-                    <SectionTitle>You are all done for today. Good job!</SectionTitle>
-                    <Button onClick={this.handleDashboard}>Dashboard</Button>
-                </>)
-        }
-
+    if(this.state.status === "REVISION_NOT_FOUND"){
         return (
             <>
-                <PageTitle>Revision In Progress</PageTitle>
-
-                <div className="grid gap-6 mb-8 md:grid-cols-2">
-                    <InfoCard title="Time Left" value={`${this.state.current_revision.time_left} minutes`}>
-                        <RoundIcon
-                            icon={DueIcon}
-                            iconColorClass="text-purple-500 dark:text-purple-100"
-                            bgColorClass="bg-purple-100 dark:bg-purple-500"
-                            className="mr-4"
-                        />
-                    </InfoCard>
-
-                    <InfoCard title="Tasks Left" value={`${this.state.current_revision.tasks_left} Tasks`}>
-                        <RoundIcon
-                            icon={TotalIcon}
-                            iconColorClass="text-blue-500 dark:text-blue-100"
-                            bgColorClass="bg-blue-100 dark:bg-blue-500"
-                            className="mr-4"
-                        />
-                    </InfoCard>
-                </div>
-
-                <SectionTitle>Current Task</SectionTitle>
-
-                <DescriptionCard className="mb-5" title={`${this.state.current_task.name}`}
-                                 value={`${this.state.current_task.description}`}/>
-
-                <div className="mt-5 grid gap-6 mb-8 grid-cols-2">
-                    <button onClick={this.handleCompleteClick} className={getButtonClass("green")}>Complete Task
-                    </button>
-                    <button className={getButtonClass("red")}>Finish Revision</button>
-                </div>
+                <PageTitle>Task not found!!</PageTitle>
+                <SectionTitle>This task does not exist, or has been completed already.</SectionTitle>
+                <Button onClick={handleDashboard}>Dashboard</Button>
             </>)
     }
-}
 
-export default RevisionInProgress
+    if(this.state.status === "FINISHED"){
+        return (
+            <>
+                <PageTitle>Finished!</PageTitle>
+                <SectionTitle>You are all done for today. Good job!</SectionTitle>
+                <Button onClick={handleDashboard}>Dashboard</Button>
+            </>)
+    }
+
+    return (
+        <>
+            <PageTitle>Revision In Progress</PageTitle>
+
+            <div className="grid gap-6 mb-8 md:grid-cols-2">
+                <InfoCard title="Time Left" value={`${currentRevision.time_left} minutes`}>
+                    <RoundIcon
+                        icon={DueIcon}
+                        iconColorClass="text-purple-500 dark:text-purple-100"
+                        bgColorClass="bg-purple-100 dark:bg-purple-500"
+                        className="mr-4"
+                    />
+                </InfoCard>
+
+                <InfoCard title="Tasks Left" value={`${currentRevision.tasks_left} Tasks`}>
+                    <RoundIcon
+                        icon={TotalIcon}
+                        iconColorClass="text-blue-500 dark:text-blue-100"
+                        bgColorClass="bg-blue-100 dark:bg-blue-500"
+                        className="mr-4"
+                    />
+                </InfoCard>
+            </div>
+
+            <SectionTitle>Current Task</SectionTitle>
+
+            <DescriptionCard className="mb-5" title={`${currentTask.name}`}
+                             value={`${currentTask.description}`}/>
+
+            <div className="mt-5 grid gap-6 mb-8 grid-cols-2">
+                <button onClick={handleCompleteClick} className={getButtonClass("green")}>Complete Task
+                </button>
+                <button className={getButtonClass("red")}>Finish Revision</button>
+            </div>
+        </>)
+}
