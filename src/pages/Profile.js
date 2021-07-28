@@ -75,7 +75,9 @@ export default function Profile() {
 
         setUpdating("NAME")
 
-        firebase.auth().currentUser.updateEmail(email)
+        firebase.auth().currentUser.updateProfile({
+            displayName: name
+        })
             .then(() => {
                 toast({title: "Success!", description: "Your name has been changed to " + name + ".", status: "success", duration: 5000,})
                 setUpdating("NONE")

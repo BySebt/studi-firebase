@@ -1,7 +1,7 @@
 import firebase from 'firebase'
 import React, {Component, useContext, useEffect, useState} from "react";
 import {Skeleton} from "@material-ui/lab";
-
+import dummyData from '../utils/demodata/studyData'
 import PageTitle from "../components/Typography/PageTitle";
 import SectionTitle from "../components/Typography/SectionTitle";
 import {
@@ -22,6 +22,7 @@ import {
     ModalContent,
     ModalHeader,
     ModalFooter,
+    Spinner,
     ModalBody,
     Text,
     ModalCloseButton,
@@ -179,13 +180,8 @@ export default function Tasks() {
 
             <SectionTitle>All Tasks</SectionTitle>
 
+
             <InputGroup className="mb-4">
-                {/*<InputLeftElement*/}
-                {/*    pointerEvents="none"*/}
-                {/*    color="gray.300"*/}
-                {/*    fontSize="1.2em"*/}
-                {/*    children={<Icon as={SearchIcon}/>}*/}
-                {/*/>*/}
                 <Input
                     placeholder="Search by task name..."
                     value={searchTerm}
@@ -193,78 +189,84 @@ export default function Tasks() {
                 />
             </InputGroup>
 
+            {loading ? (
+                <Spinner/>
+            ) : (
 
-            <TableContainer className='mb-8'>
-                <Table>
-                    <TableHeader className="justify-between">
-                        <tr className="justify-between">
-                            <TableCell>Task</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell className={"hidden md:table-cell"}>Time Required</TableCell>
-                            <TableCell className={"hidden md:table-cell"}>Due</TableCell>
-                            <TableCell className={"hidden md:table-cell"}>Created</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </tr>
-                    </TableHeader>
-                    <TableBody>
-                        {dataTable.map((task, i) => (
-                            <TableRow key={i}>
-                                <TableCell>
-                                    <span className='text-sm'>{loading ?
-                                        <Skeleton animation='wave'/> : task.name}</span>
-                                </TableCell>
+                <TableContainer className='mb-8'>
+                    <Table>
+                        <TableHeader className="justify-between">
+                            <tr className="justify-between">
+                                <TableCell>Task</TableCell>
+                                <TableCell>Status</TableCell>
+                                <TableCell className={"hidden md:table-cell"}>Time Required</TableCell>
+                                <TableCell className={"hidden md:table-cell"}>Due</TableCell>
+                                <TableCell className={"hidden md:table-cell"}>Created</TableCell>
+                                <TableCell>Actions</TableCell>
+                            </tr>
+                        </TableHeader>
+                        <TableBody>
+                            {dataTable.map((task, i) => (
+                                <TableRow key={i}>
+                                    <TableCell>
+                                        <span className='text-sm'>{task.name}</span>
+                                    </TableCell>
 
-                                <TableCell>
-                                    <span className={getTaskColor(task.status)}>{titleCase(task.status)}{" "}</span>
-                                </TableCell>
+                                    <TableCell>
+                                        <span className={getTaskColor(task.status)}>{titleCase(task.status)}{" "}</span>
+                                    </TableCell>
 
-                                <TableCell className={"hidden md:table-cell"}>
-                                    <span className='text-sm'>{task.time_required + " minutes"}</span>
-                                </TableCell>
+                                    <TableCell className={"hidden md:table-cell"}>
+                                        <span className='text-sm'>{task.time_required + " minutes"}</span>
+                                    </TableCell>
 
-                                <TableCell className={"hidden md:table-cell"}>
-                                    <span className='text-sm'>{getRelativeTime(task.next_due_date)}</span>
-                                </TableCell>
+                                    <TableCell className={"hidden md:table-cell"}>
+                                        <span className='text-sm'>{getRelativeTime(task.next_due_date)}</span>
+                                    </TableCell>
 
-                                <TableCell className={"hidden md:table-cell"}>
-                                    <span className='text-sm'>{getRelativeTime(task.date_created)}</span>
-                                </TableCell>
+                                    <TableCell className={"hidden md:table-cell"}>
+                                        <span className='text-sm'>{getRelativeTime(task.date_created)}</span>
+                                    </TableCell>
 
-                                <TableCell>
-                                    <div
-                                        className='flex items-center space-x-4'
-                                        data-key={task.id}>
+                                    <TableCell>
+                                        <div
+                                            className='flex items-center space-x-4'
+                                            data-key={task.id}>
 
-                                        <IconButton
-                                            size="xs"
-                                            colorScheme={mode === "dark" ? "gray.800" : "studyi"}
-                                            aria-label='Delete'
-                                            onClick={handleEdit}
-                                            disabled={loading}
-                                            icon={<EditIcon width={15} height={15}/>} />
+                                            <IconButton
+                                                size="xs"
+                                                colorScheme={mode === "dark" ? "gray.800" : "studyi"}
+                                                aria-label='Delete'
+                                                onClick={handleEdit}
+                                                disabled={loading}
+                                                icon={<EditIcon width={15} height={15}/>} />
 
-                                        <IconButton
-                                            size="xs"
-                                            colorScheme={mode === "dark" ? "gray.800" : "studyi"}
-                                            aria-label='Delete'
-                                            onClick={handleClick}
-                                            disabled={loading}
-                                            icon={<TrashIcon width={15} height={15} />} />
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                <TableFooter>
-                    <Pagination
-                        totalResults={dataTable.length}
-                        resultsPerPage={resultsPerPage}
-                        onChange={onPageChangeTable}
-                        label='Table navigation'
-                    />
-                </TableFooter>
-            </TableContainer>
+                                            <IconButton
+                                                size="xs"
+                                                colorScheme={mode === "dark" ? "gray.800" : "studyi"}
+                                                aria-label='Delete'
+                                                onClick={handleClick}
+                                                disabled={loading}
+                                                icon={<TrashIcon width={15} height={15} />} />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    <TableFooter>
+                        <Pagination
+                            totalResults={dataTable.length}
+                            resultsPerPage={resultsPerPage}
+                            onChange={onPageChangeTable}
+                            label='Table navigation'
+                        />
+                    </TableFooter>
+                </TableContainer>
+            )}
+
+
+
 
             <Modal
                 isOpen={isOpen}

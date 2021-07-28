@@ -7,10 +7,10 @@ const Layout = lazy(() => import('./components/Containers/DashboardLayout'))
 const Login = lazy(() => import('./pages/LoginPage'))
 const CreateAccount = lazy(() => import('./pages/SignUp'))
 const LandingPage = lazy(() => import('./pages/LandingPage'))
+const About = lazy(() => import('./pages/About'))
 
-const AuthenticatedRoute = ({ component: C, ...props }) => {
+export const AuthenticatedRoute = ({ component: C, ...props }) => {
     const { user } = useAuth()
-  console.log(`AuthenticatedRoute: ${JSON.stringify(user)}`)
   return (
       <Route
           {...props}
@@ -23,7 +23,6 @@ const AuthenticatedRoute = ({ component: C, ...props }) => {
 
 const UnauthenticatedRoute = ({ component: C, ...props }) => {
   const { user } = useAuth()
-  console.log(`UnauthenticatedRoute: ${JSON.stringify(user)}`)
   return (
       <Route
           {...props}
@@ -41,7 +40,7 @@ function App() {
         <Router>
           <AccessibleNavigationAnnouncer />
           <Switch>
-            <UnauthenticatedRoute excat path="/login" component={Login} />
+              <UnauthenticatedRoute excat path="/login" component={Login} />
             <UnauthenticatedRoute excat path="/create-account" component={CreateAccount} />
             <AuthenticatedRoute path="/app" component={Layout} />
             <Route excat path="/" component={LandingPage} />

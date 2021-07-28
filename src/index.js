@@ -1,5 +1,4 @@
 import React, { Suspense } from 'react'
-import axios from 'axios'
 import ReactDOM from 'react-dom'
 import './assets/css/tailwind.output.css'
 import App from './App'
@@ -9,15 +8,6 @@ import { Windmill } from '@windmill/react-ui'
 import {AuthProvider} from "./auth";
 import { ChakraProvider } from "@chakra-ui/react"
 import { extendTheme } from "@chakra-ui/react"
-
-const HttpsProxyAgent = require("https-proxy-agent");
-
-const httpsAgent = new HttpsProxyAgent({host: "https://australia-southeast1-studyi-b6a90.cloudfunctions.net/api", port: "proxyport", auth: "username:password"})
-
-//use axios as you normally would, but specify httpsAgent in the config
-axios.create({httpsAgent});
-
-// axios.defaults.proxy.host = "https://australia-southeast1-studyi-b6a90.cloudfunctions.net/api"
 
 // 2. Call `extendTheme` and pass your custom values
 const theme = extendTheme({

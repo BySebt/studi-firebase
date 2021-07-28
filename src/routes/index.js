@@ -1,13 +1,13 @@
 import { lazy } from 'react'
-const Dashboard = lazy(() => import('../pages/Dashboard'))
-const Tasks = lazy(() => import('../pages/Tasks'))
 const Page404 = lazy(() => import('../pages/404'))
 const Blank = lazy(() => import('../pages/About'))
 const Profile = lazy(() =>import('../pages/Profile'))
 const Create = lazy(() => import('../pages/Create'))
-const Revise = lazy(() => import('../pages/Revise'))
 const RevisionStart = lazy(() => import('../pages/RevisionStart'))
 const RevisionInProgress = lazy(() => import('../pages/RevisionInProgress'))
+
+const Dashboard = lazy(() => import('../pages/Dashboard'))
+const Tasks = lazy(() => import('../pages/Tasks'))
 
 const routes = [
   {
@@ -18,6 +18,7 @@ const routes = [
     path: '/tasks',
     component: Tasks,
   },
+    ]
   {
     path: '/404',
     component: Page404,

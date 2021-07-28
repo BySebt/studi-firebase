@@ -78,7 +78,7 @@ class Dashboard extends Component {
             .then((token) => {
                 axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
                 axios
-                    .get("/api/todos")
+                    .get("/todos")
                     .then((response) => {
                         // Dash board items
                         let tasks_total = response.data.length;

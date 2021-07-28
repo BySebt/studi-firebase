@@ -34,27 +34,12 @@ export const AuthProvider = ({ children }) => {
             .then((result) => {
                 // Signed in
                 setUser(result.user)
-                console.log(user)
                 return true;
             })
             .catch((error) => {
                 console.log(error)
             });
     };
-
-    // const logout = () => {
-    //     console.log("Logging out")
-    //
-    //     return firebase
-    //         .auth()
-    //         .signOut()
-    //         .then(() => {
-    //             console.log("Logged out.")
-    //
-    //             setUser(null);
-    //         });
-    // };
-
     // Subscribe to user on mount
     // Because this sets state in the callback it will cause any ...
     // ... component that utilizes this hook to re-render with the ...
@@ -79,7 +64,6 @@ export const AuthProvider = ({ children }) => {
         user,
         isAuthenticating,
         login,
-        // logout,
     };
 
     return (

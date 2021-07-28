@@ -31,7 +31,6 @@ function DashboardLayout() {
           <Suspense fallback={<LoadingPage />}>
             <Switch>
               {routes.map((route, i) => {
-
                 return route.component ? (
                   <Route
                     key={i}
@@ -41,9 +40,10 @@ function DashboardLayout() {
                   />
                 ) : null
               })}
-              <Redirect exact from="/app" to="/app/dashboard" />
               <Route component={Page404} />
             </Switch>
+            <Redirect exact from="/app" to="/app/dashboard" />
+
           </Suspense>
         </DashboardContainer>
       </div>

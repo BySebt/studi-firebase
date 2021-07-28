@@ -7,8 +7,8 @@ import { ReactComponent as SvgDecoratorBlob1 } from "../../assets/icons/decorato
 import DesignIllustration from "../../assets/icons/design-illustration.svg";
 import {ReactComponent as SvgDotPattern} from "../../assets/icons/dot-pattern.svg";
 
-const Container = tw.div`relative`;
-const TwoColumn = tw.div`flex flex-col lg:flex-row lg:items-center max-w-screen-xl mx-auto py-20 md:py-24`;
+const Container = tw.div`relative`; //py-10 md:py-24
+const TwoColumn = tw.div`flex flex-col lg:flex-row lg:items-center max-w-screen-xl mx-auto py-10 md:py-6 `;
 const LeftColumn = tw.div`relative lg:w-5/12 text-center max-w-lg mx-auto lg:max-w-none lg:text-left`;
 const RightColumn = tw.div`relative mt-12 lg:mt-0 flex-1 flex flex-col justify-center lg:self-end`;
 const DecoratorBlob = styled(SvgDotPattern)(() => [
