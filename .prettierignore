@@ -1,0 +1,4 @@
+# Ignore artifacts:
+/build
+/public
+/src/assets/css/tailwind.output.css

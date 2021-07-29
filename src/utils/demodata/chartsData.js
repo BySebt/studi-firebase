@@ -1,15 +1,23 @@
 export const lineLegends = [
-  { title: 'Tasks Completed (Percentage)', color: 'bg-teal-600' },
-]
+  { title: "Tasks Completed (Percentage)", color: "bg-teal-600" },
+];
 
 export const lineOptions = {
   data: {
-    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    labels: [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ],
     datasets: [
       {
-        label: 'Tasks Completed (%)',
-        backgroundColor: '#0694a2',
-        borderColor: '#0694a2',
+        label: "Tasks Completed (%)",
+        backgroundColor: "#0694a2",
+        borderColor: "#0694a2",
         data: [43, 48, 40, 54, 67, 73, 70],
         fill: false,
       },
@@ -18,11 +26,11 @@ export const lineOptions = {
   options: {
     responsive: true,
     tooltips: {
-      mode: 'index',
+      mode: "index",
       intersect: false,
     },
     hover: {
-      mode: 'nearest',
+      mode: "nearest",
       intersect: true,
     },
     scales: {
@@ -30,14 +38,14 @@ export const lineOptions = {
         display: true,
         scaleLabel: {
           display: true,
-          labelString: 'Month',
+          labelString: "Month",
         },
       },
       y: {
         display: true,
         scaleLabel: {
           display: true,
-          labelString: 'Value',
+          labelString: "Value",
         },
       },
     },
@@ -45,4 +53,4 @@ export const lineOptions = {
   legend: {
     display: false,
   },
-}
+};

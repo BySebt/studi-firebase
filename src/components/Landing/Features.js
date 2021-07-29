@@ -1,7 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import tw from "twin.macro";
-import { SectionHeading, Subheading as SubheadingBase } from "../Misc/Headings.js";
+import {
+  SectionHeading,
+  Subheading as SubheadingBase,
+} from "../Misc/Headings.js";
 import { SectionDescription } from "../Misc/Typography.js";
 
 import defaultCardImage from "../../assets/icons/shield-icon.svg";
@@ -20,7 +23,7 @@ const Subheading = tw(SubheadingBase)`mb-4`;
 const Heading = tw(SectionHeading)`w-full`;
 const Description = tw(SectionDescription)`w-full text-center`;
 
-const VerticalSpacer = tw.div`mt-10 w-full`
+const VerticalSpacer = tw.div`mt-10 w-full`;
 
 const Column = styled.div`
   ${tw`md:w-1/2 lg:w-1/3 max-w-sm`}
@@ -52,60 +55,65 @@ const DecoratorBlob = styled(SvgDecoratorBlob3)`
   ${tw`pointer-events-none absolute right-0 bottom-0 w-64 opacity-25 transform translate-x-32 translate-y-48 `}
 `;
 
-export default ({ cards = null, heading = "Amazing Features", subheading = "Features", description = "Here's why your standard calendar app won't cut it." }) => {
-    /*
-     * This componets has an array of object denoting the cards defined below. Each object in the cards array can have the key (Change it according to your need, you can also add more objects to have more cards in this feature component) or you can directly pass this using the cards prop:
-     *  1) imageSrc - the image shown at the top of the card
-     *  2) title - the title of the card
-     *  3) description - the description of the card
-     *  If a key for a particular card is not provided, a default value is used
-     */
+export default ({
+  cards = null,
+  heading = "Amazing Features",
+  subheading = "Features",
+  description = "Here's why your standard calendar app won't cut it.",
+}) => {
+  /*
+   * This componets has an array of object denoting the cards defined below. Each object in the cards array can have the key (Change it according to your need, you can also add more objects to have more cards in this feature component) or you can directly pass this using the cards prop:
+   *  1) imageSrc - the image shown at the top of the card
+   *  2) title - the title of the card
+   *  3) description - the description of the card
+   *  If a key for a particular card is not provided, a default value is used
+   */
 
-    const defaultCards = [
-        {
-            imageSrc: ShieldIconImage,
-            title: "Secure",
-            description: "Your data is secured by Google's Firebase technology."
-        },
+  const defaultCards = [
+    {
+      imageSrc: ShieldIconImage,
+      title: "Secure",
+      description: "Your data is secured by Google's Firebase technology.",
+    },
 
-        {
-            imageSrc: FastIconImage,
-            title: "Automation",
-            description: "Creating a task generates the revision dates automatically."
-        },
-        {
-            imageSrc: CustomizeIconImage,
-            title: "Responsive",
-            description: "Studyi is designed with breakpoints, making it beautiful on every device."
-        },
-    ];
+    {
+      imageSrc: FastIconImage,
+      title: "Automation",
+      description:
+        "Creating a task generates the revision dates automatically.",
+    },
+    {
+      imageSrc: CustomizeIconImage,
+      title: "Responsive",
+      description:
+        "Studyi is designed with breakpoints, making it beautiful on every device.",
+    },
+  ];
 
-    if (!cards) cards = defaultCards;
+  if (!cards) cards = defaultCards;
 
-    return (
-        <Container>
-            <ThreeColumnContainer>
-                {subheading && <Subheading>{subheading}</Subheading>}
-                <Heading>{heading}</Heading>
-                {description && <Description>{description}</Description>}
-                <VerticalSpacer />
-                {cards.map((card, i) => (
-                    <Column key={i}>
-                        <Card>
+  return (
+    <Container>
+      <ThreeColumnContainer>
+        {subheading && <Subheading>{subheading}</Subheading>}
+        <Heading>{heading}</Heading>
+        {description && <Description>{description}</Description>}
+        <VerticalSpacer />
+        {cards.map((card, i) => (
+          <Column key={i}>
+            <Card>
               <span className="imageContainer">
                 <img src={card.imageSrc || defaultCardImage} alt="" />
               </span>
-                            <span className="textContainer">
+              <span className="textContainer">
                 <span className="title">{card.title}</span>
-                <p className="description">
-                  {card.description}
-                </p>
+                <p className="description">{card.description}</p>
               </span>
-                        </Card>
-                    </Column>
-                ))}
-            </ThreeColumnContainer>
-            <DecoratorBlob />
-        </Container>
-    );
+            </Card>
+          </Column>
+        ))}
+      </ThreeColumnContainer>
+      <DecoratorBlob />
+    </Container>
+  );
 };

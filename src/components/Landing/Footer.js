@@ -14,27 +14,29 @@ const CopyRightNotice = tw.p`text-center text-sm sm:text-base mt-8 md:mt-0 font-
 
 const DecoratorBlobContainer = tw.div`absolute inset-0 overflow-hidden rounded-lg`;
 const DecoratorBlob1 = tw(
-    SvgDecoratorBlob1
+  SvgDecoratorBlob1
 )`absolute top-0 left-0 w-80 h-80 transform -translate-x-20 -translate-y-32 text-purple-700 opacity-50`;
 const DecoratorBlob2 = tw(
-    SvgDecoratorBlob1
+  SvgDecoratorBlob1
 )`absolute bottom-0 right-0 w-80 h-80 transform  translate-x-32 translate-y-48 text-purple-700 opacity-50`;
 
 export default () => {
-    return (
-        <Container>
-            <Content>
-                <ThreeColRow>
-                    <LogoContainer>
-                        <LogoText>Studyi</LogoText>
-                    </LogoContainer>
-                    <CopyRightNotice>&copy; 2021 Studyi. Made By Edwin. All Rights Reserved.</CopyRightNotice>
-                </ThreeColRow>
-            </Content>
-            <DecoratorBlobContainer>
-                <DecoratorBlob1 />
-                <DecoratorBlob2 />
-            </DecoratorBlobContainer>
-        </Container>
-    );
+  return (
+    <Container>
+      <Content>
+        <ThreeColRow>
+          <LogoContainer>
+            <LogoText>Studyi</LogoText>
+          </LogoContainer>
+          <CopyRightNotice>
+            &copy; 2021 Studyi. Made By Edwin. All Rights Reserved.
+          </CopyRightNotice>
+        </ThreeColRow>
+      </Content>
+      <DecoratorBlobContainer>
+        <DecoratorBlob1 />
+        <DecoratorBlob2 />
+      </DecoratorBlobContainer>
+    </Container>
+  );
 };

@@ -1,177 +1,195 @@
-import firebase from 'firebase'
-import React, {Component, useEffect, useState} from 'react'
-import InfoCard from '../components/Cards/InfoCard'
-import PageTitle from '../components/Typography/PageTitle'
-import {DueIcon, TotalIcon} from '../assets/icons'
-import RoundIcon from '../components/Misc/RoundIcon'
-import {getButtonClass} from "../utils/utils";
+import firebase from "firebase";
+import React, { useEffect, useState } from "react";
+import InfoCard from "../components/Cards/InfoCard";
+import PageTitle from "../components/Typography/PageTitle";
+import { DueIcon, TotalIcon } from "../assets/icons";
+import RoundIcon from "../components/Misc/RoundIcon";
+import { getButtonClass } from "../utils/utils";
 import SectionTitle from "../components/Typography/SectionTitle";
 import DescriptionCard from "../components/Cards/DescriptionCard";
 import axios from "axios";
-import {Button} from "@windmill/react-ui"
+import { Button } from "@windmill/react-ui";
+import {useHistory} from "react-router-dom";
 
 function l(message) {
-    console.log("[REVISION] " + message);
+  console.log("[REVISION] " + message);
 }
 
-export default function RevisionInProgress(){
-    const [currentRevision, setCurrentRevision] = useState({});
-    const [dataTable, setDataTable] = useState([]);
-    const [pageTable, setPageTable] = useState(1);
-    const [loading, setLoading] = useState(true);
-    const [status, setStatus] = useState("DEFAULT");
-    const [revisionID, setRevisionID] = useState("");
+export default function RevisionInProgress() {
+  const [currentRevision, setCurrentRevision] = useState({});
+  const [dataTable, setDataTable] = useState([]);
+  const [pageTable, setPageTable] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("DEFAULT");
+  const [revisionID, setRevisionID] = useState("");
     const [currentTask, setCurrentTask] = useState("");
+    const history = useHistory();
 
-    function handleDashboard(){
-        this.props.history.push("/app/dashboard")
-    }
+  function handleDashboard() {
+    history.push("/app/dashboard");
+  }
 
-    function handleCompleteClick(event) {
-        event.preventDefault();
+  function handleCompleteClick(event) {
+    event.preventDefault();
 
-        let revision_tasks = currentRevision.revision_tasks;
-        let pending_unfinished_task = false;
-        const finished_task_id =currentTask.id;
+    let revision_tasks = currentRevision.revision_tasks;
+    let pending_unfinished_task = false;
+    const finished_task_id = currentTask.id;
 
-        // Loop through tasks
-        for (let i = 0; i < revision_tasks.length; i++) {
-            // If the task ids match
-            if (revision_tasks[i].id === finished_task_id) {
-                // Set task to finished
-                revision_tasks[i].finished = true;
+    // Loop through tasks
+    for (let i = 0; i < revision_tasks.length; i++) {
+      // If the task ids match
+      if (revision_tasks[i].id === finished_task_id) {
+        // Set task to finished
+        revision_tasks[i].finished = true;
 
-                // Remove time left
-                currentRevision.time_left -= revision_tasks[i].time_required;
-                currentRevision.tasks_left -= 1;
-                currentRevision.task_completed++;
+        // Remove time left
+        currentRevision.time_left -= revision_tasks[i].time_required;
+        currentRevision.tasks_left -= 1;
+        currentRevision.task_completed++;
 
-                // The id of the finished task
-                currentRevision.finished_task_id = finished_task_id;
-                currentRevision.finished_task_status =currentTask.status;
+        // The id of the finished task
+        currentRevision.finished_task_id = finished_task_id;
+        currentRevision.finished_task_status = currentTask.status;
 
-                // Find a new task
-                for (let j = 0; j < revision_tasks.length; j++) {
-                    if (revision_tasks[j].finished === false) {
-                        // There is an unfinished task
-                        pending_unfinished_task = true;
-                        setCurrentTask(revision_tasks[j])
-                    }
-                }
-
-                // If there are no tasks left (i.e finished)
-                if (!pending_unfinished_task) {
-                    currentRevision.finished = true;
-
-                    axios.delete(`/revision/${currentRevision.id}`)
-                        .then((response) => {
-                            console.log(response)
-                        })
-                        .catch((error) => {
-                            console.log(error)
-                        })
-
-                    setStatus("FINISHED")
-                }
-                axios.post("/revision/completed", currentRevision)
-                    .then((response) => {
-                        if (response == null) {
-                            return null;
-                        }
-                    })
-
-                // No tasks left
-                break;
-            }
+        // Find a new task
+        for (let j = 0; j < revision_tasks.length; j++) {
+          if (revision_tasks[j].finished === false) {
+            // There is an unfinished task
+            pending_unfinished_task = true;
+            setCurrentTask(revision_tasks[j]);
+          }
         }
-    }
 
-    // This function is called when the page is first loaded
-    useEffect(() => {
+        // If there are no tasks left (i.e finished)
+        if (!pending_unfinished_task) {
+          currentRevision.finished = true;
 
-        firebase.
-            auth().currentUser.getIdToken()
-            .then((token) => {
-                axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
-
-                console.log("Revision ID: " + this.props.match.params.id)
-
-                // First make a request to /revision to check for an unfinished revisions
-                axios.get(`/revision/${this.props.match.params.id}`)
-                    .then((response) => {
-
-                        if (response.data.error) {
-                            this.setState({
-                                status: "REVISION_NOT_FOUND",
-                            })
-                        }
-
-                        console.log(response.data.revisionDoc)
-
-                        setCurrentTask(response.data.revisionDoc.revision_tasks[0])
-                        setCurrentRevision(response.data.revisionDoc)
-                        setLoading(false)
-                        return null;
-                    })
+          axios
+            .delete(`${window.$apiPrefix}/revision/${currentRevision.id}`)
+            .then((response) => {
+              console.log(response);
             })
-    }, []);
+            .catch((error) => {
+              console.log(error);
+            });
 
-    if (this.state.loading || !(currentRevision))
-        return (
-            <span className="text-lg p-5">Loading...</span>
-        )
+          setStatus("FINISHED");
+        }
+        axios.post(`${window.$apiPrefix}/revision/completed`, currentRevision).then((response) => {
+          if (response == null) {
+            return null;
+          }
+        });
 
-    if(this.state.status === "REVISION_NOT_FOUND"){
-        return (
-            <>
-                <PageTitle>Task not found!!</PageTitle>
-                <SectionTitle>This task does not exist, or has been completed already.</SectionTitle>
-                <Button onClick={handleDashboard}>Dashboard</Button>
-            </>)
+        // No tasks left
+        break;
+      }
     }
+  }
 
-    if(this.state.status === "FINISHED"){
-        return (
-            <>
-                <PageTitle>Finished!</PageTitle>
-                <SectionTitle>You are all done for today. Good job!</SectionTitle>
-                <Button onClick={handleDashboard}>Dashboard</Button>
-            </>)
-    }
+  // This function is called when the page is first loaded
+  useEffect(() => {
+    firebase
+      .auth()
+      .currentUser.getIdToken()
+      .then((token) => {
+        axios.defaults.headers.common = { Authorization: `Bearer ${token}` };
 
+        console.log("Revision ID: " + this.props.match.params.id);
+
+        // First make a request to /revision to check for an unfinished revisions
+        axios
+          .get(`/revision/${this.props.match.params.id}`)
+          .then((response) => {
+            if (response.data.error) {
+              this.setState({
+                status: "REVISION_NOT_FOUND",
+              });
+            }
+
+            console.log(response.data.revisionDoc);
+
+            setCurrentTask(response.data.revisionDoc.revision_tasks[0]);
+            setCurrentRevision(response.data.revisionDoc);
+            setLoading(false);
+            return null;
+          });
+      });
+  }, []);
+
+  if (loading || !currentRevision)
+    return <span className="text-lg p-5">Loading...</span>;
+
+  if (status === "REVISION_NOT_FOUND") {
     return (
-        <>
-            <PageTitle>Revision In Progress</PageTitle>
+      <>
+        <PageTitle>Task not found!!</PageTitle>
+        <SectionTitle>
+          This task does not exist, or has been completed already.
+        </SectionTitle>
+        <Button onClick={handleDashboard}>Dashboard</Button>
+      </>
+    );
+  }
 
-            <div className="grid gap-6 mb-8 md:grid-cols-2">
-                <InfoCard title="Time Left" value={`${currentRevision.time_left} minutes`}>
-                    <RoundIcon
-                        icon={DueIcon}
-                        iconColorClass="text-purple-500 dark:text-purple-100"
-                        bgColorClass="bg-purple-100 dark:bg-purple-500"
-                        className="mr-4"
-                    />
-                </InfoCard>
+  if (status === "FINISHED") {
+    return (
+      <>
+        <PageTitle>Finished!</PageTitle>
+        <SectionTitle>You are all done for today. Good job!</SectionTitle>
+        <Button onClick={handleDashboard}>Dashboard</Button>
+      </>
+    );
+  }
 
-                <InfoCard title="Tasks Left" value={`${currentRevision.tasks_left} Tasks`}>
-                    <RoundIcon
-                        icon={TotalIcon}
-                        iconColorClass="text-blue-500 dark:text-blue-100"
-                        bgColorClass="bg-blue-100 dark:bg-blue-500"
-                        className="mr-4"
-                    />
-                </InfoCard>
-            </div>
+  return (
+    <>
+      <PageTitle>Revision In Progress</PageTitle>
 
-            <SectionTitle>Current Task</SectionTitle>
+      <div className="grid gap-6 mb-8 md:grid-cols-2">
+        <InfoCard
+          title="Time Left"
+          value={`${currentRevision.time_left} minutes`}
+        >
+          <RoundIcon
+            icon={DueIcon}
+            iconColorClass="text-purple-500 dark:text-purple-100"
+            bgColorClass="bg-purple-100 dark:bg-purple-500"
+            className="mr-4"
+          />
+        </InfoCard>
 
-            <DescriptionCard className="mb-5" title={`${currentTask.name}`}
-                             value={`${currentTask.description}`}/>
+        <InfoCard
+          title="Tasks Left"
+          value={`${currentRevision.tasks_left} Tasks`}
+        >
+          <RoundIcon
+            icon={TotalIcon}
+            iconColorClass="text-blue-500 dark:text-blue-100"
+            bgColorClass="bg-blue-100 dark:bg-blue-500"
+            className="mr-4"
+          />
+        </InfoCard>
+      </div>
 
-            <div className="mt-5 grid gap-6 mb-8 grid-cols-2">
-                <button onClick={handleCompleteClick} className={getButtonClass("green")}>Complete Task
-                </button>
-                <button className={getButtonClass("red")}>Finish Revision</button>
-            </div>
-        </>)
+      <SectionTitle>Current Task</SectionTitle>
+
+      <DescriptionCard
+        className="mb-5"
+        title={`${currentTask.name}`}
+        value={`${currentTask.description}`}
+      />
+
+      <div className="mt-5 grid gap-6 mb-8 grid-cols-2">
+        <button
+          onClick={handleCompleteClick}
+          className={getButtonClass("green")}
+        >
+          Complete Task
+        </button>
+        <button className={getButtonClass("red")}>Finish Revision</button>
+      </div>
+    </>
+  );
 }

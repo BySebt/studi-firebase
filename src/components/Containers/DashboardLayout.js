@@ -1,27 +1,28 @@
-import firebase from 'firebase'
-import React, { useContext, Suspense, useEffect, lazy } from 'react'
-import { Switch, Route, Redirect, useLocation } from 'react-router-dom'
-import routes from '../../routes'
+import React, { useContext, Suspense, useEffect, lazy } from "react";
+import { Switch, Route, Redirect, useLocation } from "react-router-dom";
+import routes from "../../routes";
 
-import Sidebar from '../Sidebar'
-import DashboardHeader from '../Headers/DashboardHeader'
-import DashboardContainer from './DashboardContainer'
-import LoadingPage from '../Misc/LoadingPage'
-import { SidebarContext } from '../../utils/context/SidebarContext'
+import Sidebar from "../Sidebar";
+import DashboardHeader from "../Headers/DashboardHeader";
+import DashboardContainer from "./DashboardContainer";
+import LoadingPage from "../Misc/LoadingPage";
+import { SidebarContext } from "../../utils/context/SidebarContext";
 
-const Page404 = lazy(() => import('../../pages/404'))
+const Page404 = lazy(() => import("../../pages/404"));
 
 function DashboardLayout() {
-  const { isSidebarOpen, closeSidebar } = useContext(SidebarContext)
-  let location = useLocation()
+  const { isSidebarOpen, closeSidebar } = useContext(SidebarContext);
+  let location = useLocation();
 
   useEffect(() => {
-    closeSidebar()
-  }, [location])
+    closeSidebar();
+  }, [location]);
 
   return (
     <div
-      className={`flex h-screen bg-gray-50 dark:bg-gray-900 ${isSidebarOpen && 'overflow-hidden'}`}
+      className={`flex h-screen bg-gray-50 dark:bg-gray-900 ${
+        isSidebarOpen && "overflow-hidden"
+      }`}
     >
       <Sidebar />
 
@@ -38,17 +39,16 @@ function DashboardLayout() {
                     path={`/app${route.path}`}
                     render={(props) => <route.component {...props} />}
                   />
-                ) : null
+                ) : null;
               })}
               <Route component={Page404} />
             </Switch>
-            <Redirect exact from="/app" to="/app/about" />
-
+            <Redirect exact from="/app" to="/app/dashboard" />
           </Suspense>
         </DashboardContainer>
       </div>
     </div>
-  )
+  );
 }
 
-export default DashboardLayout
+export default DashboardLayout;
