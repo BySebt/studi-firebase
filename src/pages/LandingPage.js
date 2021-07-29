@@ -17,6 +17,12 @@ export default () => {
   return (
     <AnimationRevealPage>
       <Hero roundedHeaderButton={true} imageDecoratorBlob={true} />
+      <MainFeature
+        subheading={<Subheading>Dashboard</Subheading>}
+        imageSrc={heroScreenshotImageSrc}
+        imageBorder={true}
+        imageDecoratorBlob={true}
+      />
       <Features
         subheading={<Subheading>Features</Subheading>}
         heading={
@@ -25,10 +31,11 @@ export default () => {
           </>
         }
       />
-      <MainFeature
+            <MainFeature
         subheading={<Subheading>Dashboard</Subheading>}
         imageSrc={heroScreenshotImageSrc}
         imageBorder={true}
+        textOnLeft={true}
         imageDecoratorBlob={true}
       />
       <FeatureWithSteps

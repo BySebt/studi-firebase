@@ -15,7 +15,7 @@ function l(message) {
   console.log("[REVISION] " + message);
 }
 
-export default function RevisionInProgress() {
+export default function RevisionInProgress(props) {
   const [currentRevision, setCurrentRevision] = useState({});
   const [dataTable, setDataTable] = useState([]);
   const [pageTable, setPageTable] = useState(1);
@@ -96,11 +96,11 @@ export default function RevisionInProgress() {
       .then((token) => {
         axios.defaults.headers.common = { Authorization: `Bearer ${token}` };
 
-        console.log("Revision ID: " + this.props.match.params.id);
+        console.log("Revision ID: " + props.match.params.id);
 
         // First make a request to /revision to check for an unfinished revisions
         axios
-          .get(`/revision/${this.props.match.params.id}`)
+          .get(`/revision/${props.match.params.id}`)
           .then((response) => {
             if (response.data.error) {
               this.setState({

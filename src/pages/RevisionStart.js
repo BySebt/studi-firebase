@@ -193,10 +193,25 @@ export default function RevisionStart() {
     );
   }
 
+  if(status === "PENDING_REVISION"){
+    return (
+      <>
+      <PageTitle>Found unfinished revision!</PageTitle>
+      <SectionTitle>Nothing due! All caught up.</SectionTitle>
+    </>
+    )
+  }
+
   return (
     <>
       <PageTitle>Revision</PageTitle>
+
+      {status === "PENDING_REVISION" ? (
+      <SectionTitle>You haven't finished your last revision!</SectionTitle>
+      ) : 
       <SectionTitle>Here is a summary of what you'll study today.</SectionTitle>
+      }
+
 
       <div className="grid gap-6 mb-8 md:grid-cols-2">
         <InfoCard
