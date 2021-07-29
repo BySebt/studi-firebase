@@ -74,6 +74,9 @@ class Dashboard extends Component {
     }
 
     componentDidMount = () => {
+
+        console.log("Rendered Dashboard page.")
+
         firebase.auth().currentUser.getIdToken()
             .then((token) => {
                 axios.defaults.headers.common = {Authorization: `Bearer ${token}`};

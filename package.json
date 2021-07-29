@@ -2,7 +2,6 @@
   "name": "studyi",
   "version": "0.1.1",
   "description": "Studying tool backed by the forgetting curve.",
-  "homepage": ".",
   "proxy": "https://us-central1-studyi-b6a90.cloudfunctions.net/api",
   "private": true,
   "scripts": {
@@ -42,6 +41,7 @@
     "react-slick": "^0.28.1",
     "react-time-ago": "^7.0.0",
     "react-transition-group": "4.4.1",
+    "serve": "^12.0.0",
     "slick-carousel": "^1.8.1",
     "styled-components": "^5.2.3",
     "tailwindcss": "1.4.6",

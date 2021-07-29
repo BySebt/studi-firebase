@@ -5,7 +5,6 @@ const Profile = lazy(() =>import('../pages/Profile'))
 const Create = lazy(() => import('../pages/Create'))
 const RevisionStart = lazy(() => import('../pages/RevisionStart'))
 const RevisionInProgress = lazy(() => import('../pages/RevisionInProgress'))
-
 const Dashboard = lazy(() => import('../pages/Dashboard'))
 const Tasks = lazy(() => import('../pages/Tasks'))
 
@@ -18,7 +17,6 @@ const routes = [
     path: '/tasks',
     component: Tasks,
   },
-    ]
   {
     path: '/404',
     component: Page404,
