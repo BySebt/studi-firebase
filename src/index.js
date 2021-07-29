@@ -9,6 +9,8 @@ import {AuthProvider} from "./auth";
 import { ChakraProvider } from "@chakra-ui/react"
 import { extendTheme } from "@chakra-ui/react"
 
+window.$apiPrefix = "https://australia-southeast1-studyi-b6a90.cloudfunctions.net/api"
+
 // 2. Call `extendTheme` and pass your custom values
 const theme = extendTheme({
     colors: {

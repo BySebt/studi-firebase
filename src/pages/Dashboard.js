@@ -76,12 +76,13 @@ class Dashboard extends Component {
     componentDidMount = () => {
 
         console.log("Rendered Dashboard page.")
+        console.log(window.$apiPrefix)
 
         firebase.auth().currentUser.getIdToken()
             .then((token) => {
                 axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
                 axios
-                    .get("/todos")
+                    .get(`${window.$apiPrefix}/todos`)
                     .then((response) => {
                         // Dash board items
                         let tasks_total = response.data.length;
@@ -225,11 +226,6 @@ class Dashboard extends Component {
                         this.setState({
                             loading: false
                         })
-
-
-                        // console.log(weekly_completion_percentage)
-                        //
-                        // console.log(JSON.stringify(weekly_data))
                     })
                     .catch((error) => {
                         console.log(error)

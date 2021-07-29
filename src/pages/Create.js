@@ -42,7 +42,7 @@ export default function Create(){
             .then((token) => {
                 axios.defaults.headers.common = { Authorization: `Bearer ${token}` };
                 axios
-                    .post("/todo", newTodoItem)
+                    .post(`${window.$apiPrefix}/todo`, newTodoItem)
                     .then(() => {
                         toast({
                             title: "Success!",

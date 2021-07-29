@@ -118,7 +118,7 @@ export default function Tasks() {
                 setLoading(true)
                 axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
                 axios
-                    .delete(`/todo/${task_id}`)
+                    .delete(`${window.$apiPrefix}/todo/${task_id}`)
                     .then(() => {
                         toast({
                             title: "Task Deleted!",
@@ -148,7 +148,7 @@ export default function Tasks() {
             .then((token) => {
                 axios.defaults.headers.common = {Authorization: `Bearer ${token}`};
                 axios
-                    .get("/todos")
+                    .get(`${window.$apiPrefix}/todos`)
                     .then((response) => {
                         console.log(response.data)
                         setCacheData(response.data)

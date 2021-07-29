@@ -152,7 +152,7 @@ export default function SignUp(){
                                     <Link
                                         className="text-sm font-medium text-purple-600 dark:text-purple-400 hover:underline"
                                         to="/login">
-                                        Already have an account? Login
+                                        Already have an account? Login Here!
                                     </Link>
                                 </p>
 

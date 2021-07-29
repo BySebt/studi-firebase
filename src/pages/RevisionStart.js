@@ -64,7 +64,7 @@ export default function RevisionStart(){
     function beginRevision(revisionID) {
         if(revisionID == null)
             return;
-        this.props.history.push(`/app/revise/${revisionID}`)
+        this.props.history.push(`${window.$apiPrefix}/app/revise/${revisionID}`)
     }
 
     function onPageChangeTable(p) {
@@ -76,7 +76,7 @@ export default function RevisionStart(){
         event.preventDefault();
 
         if (status === "NEW_REVISION") {
-            axios.post("/revision/new", currentRevision)
+            axios.post(`${window.$apiPrefix}/revision/new`, currentRevision)
                 .then((response) => {
                     console.log(response)
                     beginRevision(response.data)
@@ -109,7 +109,7 @@ export default function RevisionStart(){
                             l("No pending revision found.");
 
                             // Proceed to fetch a list of tasks
-                            return axios.get("/todos/due");
+                            return axios.get(`${window.$apiPrefix}/todos/due`);
                         } else {
                             l("Pending revision found:");
                             console.log(response.data.revisionDoc)
