@@ -10,13 +10,22 @@ import Footer from "../components/Landing/Footer";
 import heroScreenshotImageSrc from "../assets/img/dashboard-screenshot.png";
 import TeamIllustrationSrc from "../assets/icons/design-illustration-2.svg";
 
+// This is the code for the landing page. 
+// The sections of the landing page are located in /components, making it easier to maintain.
+
 export default () => {
+  // Subheading CSS
   const Subheading = tw.span`uppercase tracking-widest font-bold text-purple-500`;
+
+  // Highlighted Text CSS
   const HighlightedText = tw.span`bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600`;
 
   return (
+
+    // AnimationRevealPage gives each component a sliding in animation.
     <AnimationRevealPage>
       <Hero roundedHeaderButton={true} imageDecoratorBlob={true} />
+
       <MainFeature
         subheading={<Subheading>Dashboard</Subheading>}
         imageSrc={heroScreenshotImageSrc}

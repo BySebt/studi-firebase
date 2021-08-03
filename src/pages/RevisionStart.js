@@ -54,7 +54,11 @@ function getNewRevisionDocument(tasks_due, total_time) {
   };
 }
 
+// This page is for creating a new revision, or contiuning the last one.
+// Homepage of revisions
+
 export default function RevisionStart() {
+  // Definition of variables. These are temporary variables.
   const [currentRevision, setCurrentRevision] = useState({});
   const [dataTable, setDataTable] = useState([]);
   const [pageTable, setPageTable] = useState(1);
@@ -63,13 +67,20 @@ export default function RevisionStart() {
   const [revisionID, setRevisionID] = useState("");
   const history = useHistory();
 
+  // This is called when the revision is started, or resumed
   function beginRevision(revisionID) {
     if (revisionID == null) return;
+
+    // Directs the user to RevisionInProgress, which attaches the revision ID in the url.
     history.push(`/app/revise/${revisionID}`);
   }
 
+  // Function called when the pages on the table is changed.
   function onPageChangeTable(p) {
+    // Update the page
     setPageTable(p);
+
+    // Updates the data which feeds the page.
     setDataTable(
       currentRevision.revision_tasks.slice(
         (p - 1) * resultsPerPage,
@@ -78,33 +89,41 @@ export default function RevisionStart() {
     );
   }
 
+  // This is the button which starts or resumes revisions
   function handleClick(event) {
+    // Prevents the default action from firing.
     event.preventDefault();
 
+    // If the revision does not exist yet...
     if (status === "NEW_REVISION") {
+      // Make a post request which creates a new revision.
       axios
         .post(`${window.$apiPrefix}/revision/new`, currentRevision)
         .then((response) => {
           console.log(response);
+
+          // Once the new revision is created, direct the user to RevisionInProgress.
           beginRevision(response.data);
         })
         .catch((error) => {
+          // TODO: Improve error handling.
           console.log(error);
         });
     } else {
+      // The revision already exists. Just navigate to RevisionInProgress
       beginRevision(revisionID);
     }
   }
 
-  // This function is called when the page is first loaded
+  // This function is called when the page is first loaded. "React Hook"
   useEffect(() => {
     firebase
       .auth()
       .currentUser.getIdToken()
       .then((token) => {
+        // Obtains the current user's ID Token, and set it as the authorization header.
+        // This is required so the backend server can identify the user.
         axios.defaults.headers.common = { Authorization: `Bearer ${token}` };
-
-        l("Component did mount.");
 
         // First make a request to /revision to check for an unfinished revisions
         axios
@@ -117,11 +136,11 @@ export default function RevisionStart() {
               // Proceed to fetch a list of tasks
               return axios.get(`${window.$apiPrefix}/todos/due`);
             } else {
+              // There are pending revisions
               l("Pending revision found:");
               console.log(response.data.revisionDoc);
 
-              l("Updating state. FINISHED!");
-
+              // Update the state to the found revision
               setRevisionID(response.data.revisionDoc.id);
               setCurrentRevision(response.data.revisionDoc);
               setStatus("PENDING_REVISION");
@@ -130,6 +149,8 @@ export default function RevisionStart() {
             }
           })
           .then((response) => {
+            // If response is null, there are no pending revisions, so this request is not needed.
+            // Return Null so the next .then() loop also ignores the result
             if (response == null) {
               return null;
             }
