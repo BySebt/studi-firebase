@@ -168,7 +168,10 @@ export default function Profile() {
       .currentUser.delete()
       .then((r) => {
         setUpdating("NONE");
-      });
+      })
+        .catch((error) => {
+          processError(error);
+        });
 
     setIsOpen(true);
   };

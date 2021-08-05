@@ -69,7 +69,7 @@ export default ({
     {
       heading: "Revise",
       description:
-        "Come back everyday to begin your revision session, with scheduled breaks.",
+        "Come back everyday to begin your revision session!",
     },
   ];
 

@@ -47,13 +47,15 @@ const HighlightedText = tw.span`bg-clip-text text-transparent bg-gradient-to-r f
 
 export default ({
   subheading = "",
+
   heading = (
     <>
       Responsive and functional<HighlightedText> Dashboard.</HighlightedText>
     </>
   ),
   description = "Our dashboard gives you full control over your created tasks, a graph displaying how you are going with your studies " +
-    "and allows you to time your revision and breaks perfectly.",
+    "and allows you to time your revision perfectly.",
+    secondaryDesription="",
   purpleButtonText = "Create Account",
   purpleButtonUrl = "/create-account",
   imageSrc = TeamIllustrationSrc,
@@ -65,6 +67,7 @@ export default ({
   imageDecoratorBlob = false,
   imageDecoratorBlobCss = null,
   textOnLeft = true,
+    button = true,
 }) => {
   // The textOnLeft boolean prop can be used to display either the text on left or right side of the image.
 
@@ -86,9 +89,18 @@ export default ({
             <Subheading>{subheading}</Subheading>
             <Heading>{heading}</Heading>
             <Description>{description}</Description>
-            <PrimaryButton href={"/signup"} a={"/signup"}>
-              {purpleButtonText}
-            </PrimaryButton>
+
+            {secondaryDesription && (
+                <>
+                  <Description>{secondaryDesription}</Description>
+                </>
+            )}
+
+            {button && (
+                <PrimaryButton href={"/signup"} a={"/signup"}>
+                  {purpleButtonText}
+                </PrimaryButton>
+            )}
           </TextContent>
         </TextColumn>
       </TwoColumn>

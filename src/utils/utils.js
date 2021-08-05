@@ -32,7 +32,11 @@ export function getTaskColor(taskStatus) {
       break;
     case "THIRD_REVISION":
       color = "blue";
+      break;
+      default:
+      color = "studyi";
   }
 
-  return `inline-flex px-2 text-xs font-medium leading-5 rounded-full text-${color}-700 bg-${color}-100 dark:text-white dark:bg-${color}-600`;
+  return color;
+  // return `inline-flex px-2 text-xs font-medium leading-5 rounded-full text-${color}-700 bg-${color}-100 dark:text-white dark:bg-${color}-600`;
 }

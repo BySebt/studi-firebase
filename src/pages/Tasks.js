@@ -31,7 +31,7 @@ import {
   Stack,
   Button,
   InputGroup,
-  IconButton,
+  IconButton, Tag,
 } from "@chakra-ui/react";
 import { EditIcon, SearchIcon, TrashIcon } from "../assets/icons";
 
@@ -227,9 +227,11 @@ export default function Tasks() {
                   </TableCell>
 
                   <TableCell>
-                    <span className={getTaskColor(task.status)}>
+                    <Tag
+                        colorScheme={getTaskColor(task.status)}
+                        size="sm">
                       {titleCase(task.status)}{" "}
-                    </span>
+                    </Tag>
                   </TableCell>
 
                   <TableCell className={"hidden md:table-cell"}>

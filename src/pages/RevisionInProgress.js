@@ -8,7 +8,10 @@ import { getButtonClass } from "../utils/utils";
 import SectionTitle from "../components/Typography/SectionTitle";
 import DescriptionCard from "../components/Cards/DescriptionCard";
 import axios from "axios";
-import { Button } from "@windmill/react-ui";
+import {
+    Button,
+} from "@chakra-ui/react"
+
 import {useHistory} from "react-router-dom";
 
 function l(message) {
@@ -100,7 +103,7 @@ export default function RevisionInProgress(props) {
 
         // First make a request to /revision to check for an unfinished revisions
         axios
-          .get(`/revision/${props.match.params.id}`)
+          .get(`${window.$apiPrefix}/revision/${props.match.params.id}`)
           .then((response) => {
             if (response.data.error) {
               this.setState({
@@ -182,13 +185,12 @@ export default function RevisionInProgress(props) {
       />
 
       <div className="mt-5 grid gap-6 mb-8 grid-cols-2">
-        <button
+        <Button
           onClick={handleCompleteClick}
-          className={getButtonClass("green")}
-        >
+          colorTheme={"green"}>
           Complete Task
-        </button>
-        <button className={getButtonClass("red")}>Finish Revision</button>
+        </Button>
+        <Button colorTheme={"red"}>Finish Revision</Button>
       </div>
     </>
   );

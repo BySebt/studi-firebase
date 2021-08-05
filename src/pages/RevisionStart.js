@@ -1,10 +1,16 @@
 import firebase from "firebase";
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import InfoCard from "../components/Cards/InfoCard";
 import PageTitle from "../components/Typography/PageTitle";
 import { DueIcon, TotalIcon } from "../assets/icons";
 import RoundIcon from "../components/Misc/RoundIcon";
-import { getButtonClass, getTaskColor, titleCase } from "../utils/utils";
+import { getTaskColor, titleCase } from "../utils/utils";
+
+
+import {
+  Button,
+  Tag,
+} from "@chakra-ui/react"
 
 import {
   Pagination,
@@ -93,6 +99,7 @@ export default function RevisionStart() {
   function handleClick(event) {
     // Prevents the default action from firing.
     event.preventDefault();
+    setLoading(true)
 
     // If the revision does not exist yet...
     if (status === "NEW_REVISION") {
@@ -108,6 +115,7 @@ export default function RevisionStart() {
         .catch((error) => {
           // TODO: Improve error handling.
           console.log(error);
+          setLoading(false)
         });
     } else {
       // The revision already exists. Just navigate to RevisionInProgress
@@ -214,15 +222,6 @@ export default function RevisionStart() {
     );
   }
 
-  if(status === "PENDING_REVISION"){
-    return (
-      <>
-      <PageTitle>Found unfinished revision!</PageTitle>
-      <SectionTitle>Nothing due! All caught up.</SectionTitle>
-    </>
-    )
-  }
-
   return (
     <>
       <PageTitle>Revision</PageTitle>
@@ -256,59 +255,67 @@ export default function RevisionStart() {
           />
         </InfoCard>
       </div>
-      <button
-        className={getButtonClass(
-          status === "NEW_REVISION" ? "green" : "purple"
-        )}
-        onClick={handleClick}
+
+      <Button
+          isFullWidth={true} colorScheme={status === "NEW_REVISION" ? "green" : "studyi"} onClick={handleClick}
       >
         {status === "NEW_REVISION"
           ? "Start a new Revision"
           : "Continue Revision"}
-      </button>
+      </Button>
 
-      <PageTitle>Tasks Due Today</PageTitle>
+      {status === "PENDING_REVISION" ? (
+          <>
+          </>
+      ) : (
+          <>
 
-      <TableContainer className="mb-8">
-        <Table>
-          <TableHeader>
-            <tr>
-              <TableCell>Task</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Time Required</TableCell>
-            </tr>
-          </TableHeader>
-          <TableBody>
-            {currentRevision.revision_tasks.map((task, i) => (
-              <TableRow key={i}>
-                <TableCell>
-                  <span className="text-sm">{task.name}</span>
-                </TableCell>
+            <PageTitle>Tasks Due Today</PageTitle>
 
-                <TableCell>
-                  <span className={getTaskColor(task.status)}>
-                    {titleCase(task.status)}{" "}
-                  </span>
-                </TableCell>
+            <TableContainer className="mb-8">
+              <Table>
+                <TableHeader>
+                  <tr>
+                    <TableCell>Task</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Time Required</TableCell>
+                  </tr>
+                </TableHeader>
+                <TableBody>
+                  {currentRevision.revision_tasks.map((task, i) => (
+                      <TableRow key={i}>
+                        <TableCell>
+                          <span className="text-sm">{task.name}</span>
+                        </TableCell>
 
-                <TableCell>
+                        <TableCell>
+                          <Tag
+                              colorScheme={getTaskColor(task.status)}
+                              size="sm">
+                            {titleCase(task.status)}{" "}
+                          </Tag>
+                        </TableCell>
+
+                        <TableCell>
                   <span className="text-sm">
                     {task.time_required + " minutes"}
                   </span>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <TableFooter>
-          <Pagination
-            totalResults={currentRevision.revision_tasks.length}
-            resultsPerPage={resultsPerPage}
-            onChange={onPageChangeTable}
-            label="Table navigation"
-          />
-        </TableFooter>
-      </TableContainer>
+                        </TableCell>
+                      </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <TableFooter>
+                <Pagination
+                    totalResults={currentRevision.revision_tasks.length}
+                    resultsPerPage={resultsPerPage}
+                    onChange={onPageChangeTable}
+                    label="Table navigation"
+                />
+              </TableFooter>
+            </TableContainer>
+          </>
+      )}
     </>
   );
 }
