@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import "./assets/css/tailwind.output.css";
-import App from "./App";
+import App from "./app";
 import { SidebarProvider } from "./utils/context/SidebarContext";
 import LoadingPage from "./components/Misc/LoadingPage";
 import { Windmill } from "@windmill/react-ui";
@@ -9,6 +9,7 @@ import { AuthProvider } from "./utils/useAuthHook";
 import { ChakraProvider } from "@chakra-ui/react";
 import { extendTheme } from "@chakra-ui/react";
 
+// Prefix for api requests
 window.$apiPrefix =
   "https://australia-southeast1-studyi-b6a90.cloudfunctions.net/api";
 

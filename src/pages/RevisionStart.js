@@ -8,7 +8,7 @@ import { getTaskColor, titleCase } from "../utils/utils";
 
 
 import {
-  Button,
+  Button, Spinner,
   Tag,
 } from "@chakra-ui/react"
 
@@ -202,7 +202,11 @@ export default function RevisionStart() {
   }, []);
 
   if (loading || !currentRevision)
-    return <span className="text-lg p-5">Loading...</span>;
+    return (
+        <>
+          <span className="text-lg p-5">Looking for your revisions...</span>
+        </>
+    );
 
   if (status === "NONE_DUE") {
     return (

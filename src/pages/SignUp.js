@@ -6,7 +6,7 @@ import axios from "axios";
 import { Input, Label, Button, HelperText } from "@windmill/react-ui";
 import { processErrorCode } from "../utils/utils";
 import { useToast } from "@chakra-ui/react";
-const { isEmail } = require("../utils/validate");
+const { isEmail } = require("../utils/utils");
 
 export default function SignUp() {
   const [email, setEmail] = useState("");

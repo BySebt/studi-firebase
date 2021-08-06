@@ -129,7 +129,7 @@ export default function Create() {
           colorScheme={"studyi"}
           isFullWidth={true}
           onClick={handleSubmit}
-          disabled={!name || !description}
+          disabled={!name || !description || loading}
         >
           Create
         </Button>

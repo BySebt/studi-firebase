@@ -5,7 +5,7 @@ import firebase from "firebase";
 import { useToast } from "@chakra-ui/react";
 
 // isEmail is a util function which uses regex and checks if a string is formatted as an email.
-const { isEmail } = require("../utils/validate");
+const { isEmail } = require("../utils/utils");
 const { processErrorCode } = require("../utils/utils");
 
 // Login page

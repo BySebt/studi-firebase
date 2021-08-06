@@ -1,6 +1,7 @@
 import firebase from "firebase";
 import React, {useContext, useState } from "react";
 import { SidebarContext } from "../../utils/context/SidebarContext";
+import { withRouter } from 'react-router-dom';
 import {
   MenuIcon,
   OutlinePersonIcon,
@@ -9,12 +10,17 @@ import {
   MoonIcon,
   UserIcon,
 } from "../../assets/icons";
+
 import { Dropdown, DropdownItem, WindmillContext } from "@windmill/react-ui";
+import {useAuth} from "../../utils/useAuthHook";
+import {useHistory} from "react-router-dom";
+import {Button} from "@chakra-ui/react";
 
 function DashboardHeader() {
   const { mode, toggleMode } = useContext(WindmillContext);
   const { toggleSidebar } = useContext(SidebarContext);
-
+  const { user } = useAuth();
+  const {history} = useHistory();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   function handleProfileClick() {
@@ -53,19 +59,21 @@ function DashboardHeader() {
           </li>
           {/* <!-- Profile menu --> */}
           <li className="relative">
-            <button
-              className="rounded-full focus:shadow-outline-purple focus:outline-none object-right relative"
+            <Button
+                colorScheme={"studyi"}
+              className="rounded-full focus:shadow-outline-purple focus:outline-none object-right relative justify-between"
               onClick={handleProfileClick}
               aria-label="Account"
               aria-haspopup="true"
             >
-              <UserIcon className="w-5 h-5" aria-hidden="true" />
-            </button>
+              <UserIcon className="w-5 h-5 mr-2" aria-hidden="true" />
+              <span>{user.displayName}</span>
+            </Button>
             <Dropdown
               align="right"
               isOpen={isProfileMenuOpen}
               onClose={() => {
-                // setIsProfileMenuOpen(false)
+                setIsProfileMenuOpen(false)
               }}
             >
               <DropdownItem tag="a" href="/app/profile">
@@ -75,6 +83,7 @@ function DashboardHeader() {
                 />
                 <span>Profile</span>
               </DropdownItem>
+
               <DropdownItem tag="a" href="/" onClick={logoutHandler}>
                 <OutlineLogoutIcon
                   className="w-4 h-4 mr-3"

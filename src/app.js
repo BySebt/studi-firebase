@@ -32,7 +32,7 @@ const UnauthenticatedRoute = ({ component: C, ...props }) => {
     <Route
       {...props}
       render={(routeProps) =>
-        !user ? <C {...routeProps} /> : <Redirect excat to="/app/about" />
+        !user ? <C {...routeProps} /> : <Redirect excat to="/app/dashboard" />
       }
     />
   );
@@ -45,11 +45,7 @@ function App() {
         <AccessibleNavigationAnnouncer />
         <Switch>
           <UnauthenticatedRoute excat path="/login" component={Login} />
-          <UnauthenticatedRoute
-            excat
-            path="/create-account"
-            component={CreateAccount}
-          />
+          <UnauthenticatedRoute excat path="/create-account" component={CreateAccount}/>
           <AuthenticatedRoute path="/app" component={Layout} />
           <Route excat path="/" component={LandingPage} />
         </Switch>

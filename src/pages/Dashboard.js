@@ -85,9 +85,6 @@ class Dashboard extends Component {
   }
 
   componentDidMount = () => {
-    console.log("Rendered Dashboard page.");
-    console.log(window.$apiPrefix);
-
     firebase
       .auth()
       .currentUser.getIdToken()
@@ -112,6 +109,8 @@ class Dashboard extends Component {
             // Date Object
             let today_date = new Date();
 
+            let today_ms = today_date.getTime();
+
             // Margin of today
             today_date.setHours(0, 0, 0, 0);
             let today_start_ms = today_date.getTime();
@@ -128,6 +127,7 @@ class Dashboard extends Component {
 
             // If a task is due on a day, but not finished on the day, then it is late. It is added to "total" but not "finished".
             const weekly_data = getDefaultWeeklyData(monday_start_ms);
+
             const status = [
               "FIRST_REVISION",
               "SECOND_REVISION",
@@ -137,28 +137,51 @@ class Dashboard extends Component {
             console.log(response.data);
 
             response.data.forEach((task) => {
+
+              /*
+                  Due date
+               */
+
               l("----------------------------------");
               l("Looping task: " + task.name);
 
               let due_date_ms = task.next_due_date;
 
-              // If the task is due within today (and incomplete), if it was due today and completed, this due date would not be today again.
-              if (isToday(due_date_ms)) {
-                l("This task is due today, and is incomplete.");
-                tasks_due_today++;
-              }
+              // If the task is already due...
+              if(due_date_ms < today_ms){
+                l("Task is already due.");
 
-              // If the task is due within this week
-              if (inRange(monday_start_ms, sunday_end_ms, due_date_ms)) {
+                // Increase tasks due today and this week
+                tasks_due_today++;
                 tasks_due_this_week++;
 
-                let day_of_week = getDateFromDay(
-                  new Date(due_date_ms).getDay()
-                );
+                l("Adding task to " + getDateFromDay(today_date.getDay()) + " 's weekly data.");
 
-                l("The task due within this week, on " + day_of_week + ".");
+                // Add a total to the weekly data
+                weekly_data[getDateFromDay(today_date.getDay())].total += 1;
+                l("1")
 
-                weekly_data[day_of_week].total += 1;
+                // If the task is not yet due
+              } else {
+                // If the task is due within today
+                if (isToday(due_date_ms)) {
+                  l("This task is due today, and is incomplete.");
+                  tasks_due_today++;
+                }
+
+                // If the task is due within this week
+                if (inRange(monday_start_ms, sunday_end_ms, due_date_ms)) {
+                  tasks_due_this_week++;
+
+                  let day_of_week = getDateFromDay(
+                      new Date(due_date_ms).getDay()
+                  );
+
+                  l("The task due within this week, on " + day_of_week + ".");
+
+                  weekly_data[day_of_week].total += 1;
+                  l("2")
+                }
               }
 
               for (let i = 0; i < status.length; i++) {
@@ -168,9 +191,7 @@ class Dashboard extends Component {
                   let due_this_week = false;
 
                   // If the task history was due this week
-                  if (
-                    inRange(monday_start_ms, sunday_end_ms, task_doc.due_date)
-                  )
+                  if (inRange(monday_start_ms, sunday_end_ms, task_doc.due_date))
                     due_this_week = true;
 
                   // If the history was not due this week, continue
@@ -189,6 +210,7 @@ class Dashboard extends Component {
 
                   // Add a total task
                   weekly_data[due_day].total += 1;
+                  l("3")
 
                   if (isTheSameDay(task_doc.due_date, task_doc.finished_ms)) {
                     l(
@@ -237,10 +259,13 @@ class Dashboard extends Component {
                 continue;
               }
 
-              weekly_completion_percentage[day_index] =
-                (weekly_data[day].finished / weekly_data[day].total) * 100;
+              console.log(day + " " + weekly_data[day].finished + " " + weekly_data[day].total)
+
+              weekly_completion_percentage[day_index] = Math.round((weekly_data[day].finished / weekly_data[day].total) * 100)
               day_index++;
             }
+
+            console.log("Graph Data: " + weekly_completion_percentage)
 
             this.setState((prevState) => {
               let graph_data = Object.assign({}, prevState.graph_data);
@@ -292,6 +317,24 @@ class Dashboard extends Component {
           </InfoCard>
 
           <InfoCard
+              title="Unfinished Today"
+              value={
+                this.state.loading ? (
+                    <Spinner />
+                ) : (
+                    this.state.tasks_due_today - this.state.tasks_completed_today
+                )
+              }
+          >
+            <RoundIcon
+                icon={TaskLeftIcon}
+                iconColorClass="text-orange-500 dark:text-orange-100"
+                bgColorClass="bg-orange-100 dark:bg-orange-500"
+                className="mr-4"
+            />
+          </InfoCard>
+
+          <InfoCard
             title="Completed Today"
             value={
               this.state.loading ? (
@@ -309,23 +352,7 @@ class Dashboard extends Component {
             />
           </InfoCard>
 
-          <InfoCard
-            title="Unfinished Today"
-            value={
-              this.state.loading ? (
-                <Spinner />
-              ) : (
-                this.state.tasks_due_today - this.state.tasks_completed_today
-              )
-            }
-          >
-            <RoundIcon
-              icon={TaskLeftIcon}
-              iconColorClass="text-orange-500 dark:text-orange-100"
-              bgColorClass="bg-orange-100 dark:bg-orange-500"
-              className="mr-4"
-            />
-          </InfoCard>
+
         </div>
 
         <PageTitle>Graph</PageTitle>

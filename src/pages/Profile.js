@@ -17,16 +17,16 @@ import {
 import { useAuth } from "../utils/useAuthHook";
 import SectionTitle from "../components/Typography/SectionTitle";
 import { processErrorCode } from "../utils/utils";
-import { isEmail } from "../utils/validate";
+import { isEmail } from "../utils/utils";
 
 export default function Profile() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
   const [updating, setUpdating] = useState("NONE");
   const { user } = useAuth();
   const toast = useToast();
+  const [isOpen, setIsOpen] = useState(false);
   const cancelRef = React.useRef();
   const onClose = () => setIsOpen(false);
 
@@ -171,9 +171,9 @@ export default function Profile() {
       })
         .catch((error) => {
           processError(error);
+          setIsOpen(false);
         });
 
-    setIsOpen(true);
   };
 
   return (

@@ -4,7 +4,6 @@ import InfoCard from "../components/Cards/InfoCard";
 import PageTitle from "../components/Typography/PageTitle";
 import { DueIcon, TotalIcon } from "../assets/icons";
 import RoundIcon from "../components/Misc/RoundIcon";
-import { getButtonClass } from "../utils/utils";
 import SectionTitle from "../components/Typography/SectionTitle";
 import DescriptionCard from "../components/Cards/DescriptionCard";
 import axios from "axios";
@@ -32,10 +31,30 @@ export default function RevisionInProgress(props) {
     history.push("/app/dashboard");
   }
 
+  function handleFinishRevision(event){
+      event.preventDefault();
+
+      setLoading(true)
+
+      axios
+          .delete(`${window.$apiPrefix}/revision/${currentRevision.id}`)
+          .then((response) => {
+              console.log(response);
+          })
+          .catch((error) => {
+              console.log(error);
+          });
+
+      setLoading(false)
+      setStatus("PART_FINISHED");
+  }
+
   function handleCompleteClick(event) {
     event.preventDefault();
 
-    let revision_tasks = currentRevision.revision_tasks;
+      setLoading(true)
+
+      let revision_tasks = currentRevision.revision_tasks;
     let pending_unfinished_task = false;
     const finished_task_id = currentTask.id;
 
@@ -79,8 +98,11 @@ export default function RevisionInProgress(props) {
 
           setStatus("FINISHED");
         }
+
         axios.post(`${window.$apiPrefix}/revision/completed`, currentRevision).then((response) => {
-          if (response == null) {
+
+            setLoading(false)
+            if (response == null) {
             return null;
           }
         });
@@ -131,17 +153,27 @@ export default function RevisionInProgress(props) {
         <SectionTitle>
           This task does not exist, or has been completed already.
         </SectionTitle>
-        <Button onClick={handleDashboard}>Dashboard</Button>
+        <Button onClick={handleDashboard} colorScheme={"studyi"}>Dashboard</Button>
       </>
     );
   }
+
+    if (status === "PART_FINISHED") {
+        return (
+            <>
+                <PageTitle>Revision ended early!</PageTitle>
+                <SectionTitle>If you started the revision on a task, but didn't finish it, it won't count towards completion progress!</SectionTitle>
+                <Button onClick={handleDashboard} colorScheme={"studyi"}>Dashboard</Button>
+            </>
+        );
+    }
 
   if (status === "FINISHED") {
     return (
       <>
         <PageTitle>Finished!</PageTitle>
         <SectionTitle>You are all done for today. Good job!</SectionTitle>
-        <Button onClick={handleDashboard}>Dashboard</Button>
+          <Button onClick={handleDashboard} colorScheme={"studyi"}>Dashboard</Button>
       </>
     );
   }
@@ -187,10 +219,16 @@ export default function RevisionInProgress(props) {
       <div className="mt-5 grid gap-6 mb-8 grid-cols-2">
         <Button
           onClick={handleCompleteClick}
-          colorTheme={"green"}>
+          colorScheme={"green"}
+          isLoading={loading}
+        >
           Complete Task
         </Button>
-        <Button colorTheme={"red"}>Finish Revision</Button>
+        <Button
+            colorScheme={"red"}
+            isLoading={loading}
+            onClick={handleFinishRevision}
+        >Finish Revision</Button>
       </div>
     </>
   );

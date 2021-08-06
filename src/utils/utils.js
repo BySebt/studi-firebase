@@ -1,7 +1,4 @@
-export function getButtonClass(color) {
-  return `align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-${color}-400 border border-transparent active:bg-${color}-400 hover:bg-${color}-500 focus:shadow-outline-${color}`;
-}
-
+// This is used to handle the google firebase errors. (i.e auth/incorrect-password -> Incorrect Password)
 export function titleCase(str) {
   if (str == null) return str;
 
@@ -14,14 +11,16 @@ export function titleCase(str) {
   return splitStr.join(" ");
 }
 
+// This is used to handle the google firebase errors. (i.e auth/incorrect-password -> Incorrect Password)
 export function processErrorCode(errorcode) {
   errorcode = errorcode.substring(5);
   errorcode = errorcode.replace(/-/g, " ");
   return titleCase(errorcode);
 }
 
+// Returns the color for the status of a task
 export function getTaskColor(taskStatus) {
-  let color = "blue";
+  let color;
 
   switch (taskStatus) {
     case "FIRST_REVISION":
@@ -38,5 +37,10 @@ export function getTaskColor(taskStatus) {
   }
 
   return color;
-  // return `inline-flex px-2 text-xs font-medium leading-5 rounded-full text-${color}-700 bg-${color}-100 dark:text-white dark:bg-${color}-600`;
 }
+
+// Check if a string is formatted as an email
+export const isEmail = (email) => {
+  const emailRegEx = /\S+@\S+\.\S+/;
+  return !!email.match(emailRegEx);
+};

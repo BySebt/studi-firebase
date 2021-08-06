@@ -31,12 +31,12 @@ import {
   Stack,
   Button,
   InputGroup,
-  IconButton, Tag,
+  IconButton, Tag, Link,
 } from "@chakra-ui/react";
-import { EditIcon, SearchIcon, TrashIcon } from "../assets/icons";
+import { EditIcon, TrashIcon } from "../assets/icons";
 
 import axios from "axios";
-import { getButtonClass, getTaskColor, titleCase } from "../utils/utils";
+import { getTaskColor, titleCase } from "../utils/utils";
 import { useToast } from "@chakra-ui/react";
 import { useHistory } from "react-router-dom";
 import * as PropTypes from "prop-types";
@@ -98,7 +98,7 @@ export default function Tasks() {
   }
 
   function handleEdit(event) {
-    const task_id = event.currentTarget.parentNode.getAttribute("data-key");
+    const task_id = event.currentTarget.getAttribute("data-key");
 
     let findTask = cacheData.filter((t) => t.id === task_id);
     if (findTask == null) {
@@ -121,7 +121,6 @@ export default function Tasks() {
       .auth()
       .currentUser.getIdToken()
       .then((token) => {
-        console.log("Deleting task " + task_id);
         setLoading(true);
         axios.defaults.headers.common = { Authorization: `Bearer ${token}` };
         axios
@@ -182,12 +181,13 @@ export default function Tasks() {
       <div className="flex justify-between">
         <PageTitle>Tasks</PageTitle>
 
-        <button
-          className={"my-6 " + getButtonClass("green")}
-          onClick={(e) => history.push("/app/create")}
+        <Button
+            colorScheme={"green"}
+            className={"mt-4"}
+            onClick={(e) => history.push("/app/create")}
         >
           Create a task
-        </button>
+        </Button>
       </div>
 
       <SectionTitle>All Tasks</SectionTitle>
@@ -223,7 +223,9 @@ export default function Tasks() {
               {dataTable.map((task, i) => (
                 <TableRow key={i}>
                   <TableCell>
-                    <span className="text-sm">{task.name}</span>
+                    <Link onClick={handleEdit} data-key={task.id}>
+                      <span className="text-sm">{task.name}</span>
+                    </Link>
                   </TableCell>
 
                   <TableCell>
@@ -257,14 +259,14 @@ export default function Tasks() {
                       className="flex items-center space-x-4"
                       data-key={task.id}
                     >
-                      <IconButton
-                        size="xs"
-                        colorScheme={mode === "dark" ? "gray.800" : "studyi"}
-                        aria-label="Delete"
-                        onClick={handleEdit}
-                        disabled={loading}
-                        icon={<EditIcon width={15} height={15} />}
-                      />
+                      {/*<IconButton*/}
+                      {/*  size="xs"*/}
+                      {/*  colorScheme={mode === "dark" ? "gray.800" : "studyi"}*/}
+                      {/*  aria-label="Delete"*/}
+                      {/*  onClick={handleEdit}*/}
+                      {/*  disabled={loading}*/}
+                      {/*  icon={<EditIcon width={15} height={15} />}*/}
+                      {/*/>*/}
 
                       <IconButton
                         size="xs"

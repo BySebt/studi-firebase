@@ -43,7 +43,7 @@ function DashboardLayout() {
               })}
               <Route component={Page404} />
             </Switch>
-            <Redirect exact from="/app" to="/app/dashboard" />
+            {/*<Redirect from ="/app" to="/app/dashboard" />*/}
           </Suspense>
         </DashboardContainer>
       </div>
