@@ -149,7 +149,7 @@ export default function RevisionInProgress(props) {
   if (status === "REVISION_NOT_FOUND") {
     return (
       <>
-        <PageTitle>Task not found!!</PageTitle>
+        <PageTitle>Revision not found!!</PageTitle>
         <SectionTitle>
           This task does not exist, or has been completed already.
         </SectionTitle>
@@ -196,8 +196,8 @@ export default function RevisionInProgress(props) {
         </InfoCard>
 
         <InfoCard
-          title="Tasks Left"
-          value={`${currentRevision.tasks_left} Tasks`}
+          title="Topics Left"
+          value={`${currentRevision.tasks_left} Topics`}
         >
           <RoundIcon
             icon={TotalIcon}
@@ -208,7 +208,7 @@ export default function RevisionInProgress(props) {
         </InfoCard>
       </div>
 
-      <SectionTitle>Current Task</SectionTitle>
+      <SectionTitle>Current Topic</SectionTitle>
 
       <DescriptionCard
         className="mb-5"
@@ -222,7 +222,7 @@ export default function RevisionInProgress(props) {
           colorScheme={"green"}
           isLoading={loading}
         >
-          Complete Task
+          Complete Topic
         </Button>
         <Button
             colorScheme={"red"}

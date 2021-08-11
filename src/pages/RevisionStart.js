@@ -211,7 +211,7 @@ export default function RevisionStart() {
   if (status === "NONE_DUE") {
     return (
       <>
-        <PageTitle>Tasks Due Today</PageTitle>
+        <PageTitle>Topics Due Today</PageTitle>
         <SectionTitle>Nothing due! All caught up.</SectionTitle>
       </>
     );
@@ -250,7 +250,7 @@ export default function RevisionStart() {
           />
         </InfoCard>
 
-        <InfoCard title="Total Tasks Due" value={currentRevision.total_tasks}>
+        <InfoCard title="Total Topics Due" value={currentRevision.total_tasks}>
           <RoundIcon
             icon={TotalIcon}
             iconColorClass="text-blue-500 dark:text-blue-100"
@@ -274,13 +274,13 @@ export default function RevisionStart() {
       ) : (
           <>
 
-            <PageTitle>Tasks Due Today</PageTitle>
+            <PageTitle>Topics Due Today</PageTitle>
 
             <TableContainer className="mb-8">
               <Table>
                 <TableHeader>
                   <tr>
-                    <TableCell>Task</TableCell>
+                    <TableCell>Topic</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell>Time Required</TableCell>
                   </tr>

@@ -53,7 +53,7 @@ export default ({
       Responsive and functional<HighlightedText> Dashboard.</HighlightedText>
     </>
   ),
-  description = "Our dashboard gives you full control over your created tasks, a graph displaying how you are going with your studies " +
+  description = "Our dashboard gives you full control over your created topics, a graph displaying how you are going with your studies " +
     "and allows you to time your revision perfectly.",
     secondaryDesription="",
   purpleButtonText = "Create Account",

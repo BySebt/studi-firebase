@@ -16,7 +16,7 @@ import axios from "axios";
 import { Spinner } from "@chakra-ui/react";
 
 const lineLegends = [
-  { title: "Tasks Completed (Percentage)", color: "bg-teal-600" },
+  { title: "Topics Completed (Percentage)", color: "bg-teal-600" },
 ];
 
 class Dashboard extends Component {
@@ -37,7 +37,7 @@ class Dashboard extends Component {
           ],
           datasets: [
             {
-              label: "Tasks Completed (%)",
+              label: "Topics Completed (%)",
               backgroundColor: "#0694a2",
               borderColor: "#0694a2",
               data: [43, 48, 40, 54, 67, 73, 70],
@@ -195,7 +195,7 @@ class Dashboard extends Component {
                     due_this_week = true;
 
                   // If the history was not due this week, continue
-                  // Tasks must be due on the week it was completed. Else, the completion is late and hence wont be recorded
+                  // Topics must be due on the week it was completed. Else, the completion is late and hence wont be recorded
                   if (!due_this_week) continue;
 
                   let due_day = getDateFromDay(
@@ -291,7 +291,7 @@ class Dashboard extends Component {
 
         <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
           <InfoCard
-            title="Total Tasks"
+            title="Total Topics"
             value={this.state.loading ? <Spinner /> : this.state.tasks_total}
           >
             <RoundIcon

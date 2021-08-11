@@ -14,6 +14,8 @@ import {
   SliderThumb,
     Button
 } from "@chakra-ui/react";
+import {Subheading} from "../components/Misc/Headings";
+import SectionTitle from "../components/Typography/SectionTitle";
 
 export default function Create() {
   const [name, setName] = useState("");
@@ -77,34 +79,35 @@ export default function Create() {
 
   return (
     <>
-      <PageTitle>Create A New Task</PageTitle>
+      <PageTitle>Create A New Topic</PageTitle>
+      <SectionTitle>Learnt something new today? Record the topic to revise later.</SectionTitle>
 
       <div className="px-4 py-4 mb-16 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <Label>
-          <span>Task</span>
+          <span>Topic</span>
           <Input
             name="name"
             value={name}
             className="mt-2"
-            placeholder="Do homework"
+            placeholder="Algebra"
             onChange={(e) => setName(e.target.value)}
           />
         </Label>
 
         <Label className="mt-4">
-          <span>Task Description</span>
+          <span>Topic Description</span>
           <Textarea
             className="mt-2"
             name="description"
             rows="3"
             value={description}
-            placeholder="Enter description."
+            placeholder="Notes found in page 33 of textbook"
             onChange={(e) => setDescription(e.target.value)}
           />
         </Label>
 
         <Label className="mt-4">
-          <span>Task Length: {timeRequired} minutes</span>
+          <span>Topic Revision Length: {timeRequired} minutes</span>
 
           <Slider
             defaultValue={5}
@@ -125,7 +128,7 @@ export default function Create() {
           className="mt-6"
           block
           isLoading={loading}
-          loadingText={"Creating Task..."}
+          loadingText={"Creating Topic..."}
           colorScheme={"studyi"}
           isFullWidth={true}
           onClick={handleSubmit}

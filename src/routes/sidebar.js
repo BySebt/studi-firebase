@@ -5,9 +5,9 @@ const routes = [
     name: "Dashboard",
   },
   {
-    path: "/app/tasks",
+    path: "/app/topics",
     icon: "TablesIcon",
-    name: "Tasks",
+    name: "Topics",
   },
   {
     path: "/app/create",

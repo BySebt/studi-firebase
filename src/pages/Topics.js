@@ -71,7 +71,7 @@ function PhoneIcon(props) {
 }
 
 PhoneIcon.propTypes = { color: PropTypes.string };
-export default function Tasks() {
+export default function Topics() {
   const [cacheData, setCacheData] = useState([]);
   const [dataTable, setDataTable] = useState([]);
   const [editTask, setEditTask] = useState([]);
@@ -127,7 +127,7 @@ export default function Tasks() {
           .delete(`${window.$apiPrefix}/todo/${task_id}`)
           .then(() => {
             toast({
-              title: "Task Deleted!",
+              title: "Topic Deleted!",
               status: "success",
               duration: 3000,
             });
@@ -179,22 +179,22 @@ export default function Tasks() {
   return (
     <>
       <div className="flex justify-between">
-        <PageTitle>Tasks</PageTitle>
+        <PageTitle>Topics</PageTitle>
 
         <Button
             colorScheme={"green"}
             className={"mt-4"}
             onClick={(e) => history.push("/app/create")}
         >
-          Create a task
+          New Topic
         </Button>
       </div>
 
-      <SectionTitle>All Tasks</SectionTitle>
+      <SectionTitle>All Topics</SectionTitle>
 
       <InputGroup className="mb-4">
         <Input
-          placeholder="Search by task name..."
+          placeholder="Search by topic name..."
           value={searchTerm}
           onChange={search}
         />
@@ -207,7 +207,7 @@ export default function Tasks() {
           <Table>
             <TableHeader className="justify-between">
               <tr className="justify-between">
-                <TableCell>Task</TableCell>
+                <TableCell>Topic</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell className={"hidden md:table-cell"}>
                   Time Required
@@ -296,7 +296,7 @@ export default function Tasks() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Viewing task</ModalHeader>
+          <ModalHeader>Viewing topic</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Stack spacing={3}>

@@ -1,5 +1,5 @@
 export const lineLegends = [
-  { title: "Tasks Completed (Percentage)", color: "bg-teal-600" },
+  { title: "Topics Completed (Percentage)", color: "bg-teal-600" },
 ];
 
 export const lineOptions = {
@@ -15,7 +15,7 @@ export const lineOptions = {
     ],
     datasets: [
       {
-        label: "Tasks Completed (%)",
+        label: "Topics Completed (%)",
         backgroundColor: "#0694a2",
         borderColor: "#0694a2",
         data: [43, 48, 40, 54, 67, 73, 70],
