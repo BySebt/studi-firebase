@@ -259,14 +259,6 @@ export default function Topics() {
                       className="flex items-center space-x-4"
                       data-key={task.id}
                     >
-                      {/*<IconButton*/}
-                      {/*  size="xs"*/}
-                      {/*  colorScheme={mode === "dark" ? "gray.800" : "studyi"}*/}
-                      {/*  aria-label="Delete"*/}
-                      {/*  onClick={handleEdit}*/}
-                      {/*  disabled={loading}*/}
-                      {/*  icon={<EditIcon width={15} height={15} />}*/}
-                      {/*/>*/}
 
                       <IconButton
                         size="xs"
@@ -284,7 +276,7 @@ export default function Topics() {
           </Table>
           <TableFooter>
             <Pagination
-              totalResults={dataTable.length}
+              totalResults={cacheData.length}
               resultsPerPage={resultsPerPage}
               onChange={onPageChangeTable}
               label="Table navigation"

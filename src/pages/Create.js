@@ -24,11 +24,29 @@ export default function Create() {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
+  // This handles the event when the enter key is pressed.
+  function handleKeyDown(event) {
+    // If the user presses enter, call the handle submit function
+    if (event.key === "Enter") {
+      handleSubmit(event);
+    }
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
 
     if (!name || !description) {
       return;
+    }
+
+    if(name.length > 500 || description.length > 1000){
+        toast({
+          title: "Error!",
+          description: `Name or Description must not exceed 1000 characters.`,
+          status: "error",
+          duration: 5000,
+        });
+        return;
     }
 
     setLoading(true)
@@ -89,6 +107,7 @@ export default function Create() {
             name="name"
             value={name}
             className="mt-2"
+            onKeyDown={handleKeyDown}
             placeholder="Algebra"
             onChange={(e) => setName(e.target.value)}
           />
@@ -99,6 +118,7 @@ export default function Create() {
           <Textarea
             className="mt-2"
             name="description"
+            onKeyDown={handleKeyDown}
             rows="3"
             value={description}
             placeholder="Notes found in page 33 of textbook"
