@@ -2,13 +2,6 @@ import firebase from "firebase";
 import { useState, useEffect, useContext, createContext } from "react";
 
 firebase.initializeApp({
-  apiKey: "AIzaSyAdPlfS0Cs6cZPy2ItGoTDi9So78u9_6YU",
-  authDomain: "studyi-b6a90.firebaseapp.com",
-  projectId: "studyi-b6a90",
-  storageBucket: "studyi-b6a90.appspot.com",
-  messagingSenderId: "890335735465",
-  appId: "1:890335735465:web:495c86dbd2badeaebb83b8",
-  measurementId: "G-Q7YRFJ8B43",
 });
 
 const AuthContext = createContext(null);
